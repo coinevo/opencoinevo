@@ -1,4 +1,0 @@
-[submodule "src/xmregcore"]
-	path = src/xmregcore
-	url = https://github.com/moneroexamples/xmregcore
-    branch = release_v13
