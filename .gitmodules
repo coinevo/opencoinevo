@@ -1,0 +1,3 @@
+[submodule "src/evoegcore"]
+	path = src/evoegcore
+	url = https://github.com/coinevo/evoegcore
