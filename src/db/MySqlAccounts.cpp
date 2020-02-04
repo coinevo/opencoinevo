@@ -10,7 +10,7 @@
 
 #include "ssqlses.h"
 
-namespace xmreg
+namespace evoeg
 {
 
 
@@ -20,13 +20,13 @@ MysqlInputs::MysqlInputs(shared_ptr<MySqlConnector> _conn)
 
 bool
 MysqlInputs::select_for_out(const uint64_t& output_id,
-                            vector<XmrInput>& ins)
+                            vector<EvoInput>& ins)
 {
     try
     {
         conn->check_if_connected();
 
-        Query query = conn->query(XmrInput::SELECT_STMT4);
+        Query query = conn->query(EvoInput::SELECT_STMT4);
         query.parse();
 
         query.storein(ins, output_id);
@@ -49,16 +49,16 @@ MysqlOutpus::MysqlOutpus(shared_ptr<MySqlConnector> _conn): conn {_conn}
 
 
 bool
-MysqlOutpus::exist(const string& output_public_key_str, XmrOutput& out)
+MysqlOutpus::exist(const string& output_public_key_str, EvoOutput& out)
 {
     try
     {
         conn->check_if_connected();
 
-        Query query = conn->query(XmrOutput::EXIST_STMT);
+        Query query = conn->query(EvoOutput::EXIST_STMT);
         query.parse();
 
-        vector<XmrOutput> outs;
+        vector<EvoOutput> outs;
 
         query.storein(outs, output_public_key_str);
 
@@ -91,8 +91,8 @@ MysqlTransactions::mark_spendable(const uint64_t& tx_id_no, bool spendable)
 
         Query query = conn->query(
                     spendable ?
-                      XmrTransaction::MARK_AS_SPENDABLE_STMT
-                                : XmrTransaction::MARK_AS_NONSPENDABLE_STMT);
+                      EvoTransaction::MARK_AS_SPENDABLE_STMT
+                                : EvoTransaction::MARK_AS_NONSPENDABLE_STMT);
         query.parse();
 
 
@@ -116,7 +116,7 @@ MysqlTransactions::delete_tx(const uint64_t& tx_id_no)
     {
         conn->check_if_connected();
 
-        Query query = conn->query(XmrTransaction::DELETE_STMT);
+        Query query = conn->query(EvoTransaction::DELETE_STMT);
         query.parse();
 
         SimpleResult sr = query.execute(tx_id_no);
@@ -135,16 +135,16 @@ MysqlTransactions::delete_tx(const uint64_t& tx_id_no)
 
 bool
 MysqlTransactions::exist(const uint64_t& account_id,
-                         const string& tx_hash_str, XmrTransaction& tx)
+                         const string& tx_hash_str, EvoTransaction& tx)
 {
     try
     {
         conn->check_if_connected();
 
-        Query query = conn->query(XmrTransaction::EXIST_STMT);
+        Query query = conn->query(EvoTransaction::EXIST_STMT);
         query.parse();
 
-        vector<XmrTransaction> outs;
+        vector<EvoTransaction> outs;
 
         query.storein(outs, account_id, tx_hash_str);
 
@@ -172,7 +172,7 @@ MysqlTransactions::get_total_recieved(const uint64_t& account_id,
     {
         conn->check_if_connected();
 
-        Query query = conn->query(XmrTransaction::SUM_XMR_RECIEVED);
+        Query query = conn->query(EvoTransaction::SUM_EVO_RECIEVED);
         query.parse();
 
         StoreQueryResult sqr = query.store(account_id);
@@ -196,14 +196,14 @@ MysqlPayments::MysqlPayments(shared_ptr<MySqlConnector> _conn): conn {_conn}
 
 bool
 MysqlPayments::select_by_payment_id(const string& payment_id,
-                                    vector<XmrPayment>& payments)
+                                    vector<EvoPayment>& payments)
 {
 
     try
     {
         conn->check_if_connected();
 
-        Query query = conn->query(XmrPayment::SELECT_STMT2);
+        Query query = conn->query(EvoPayment::SELECT_STMT2);
         query.parse();
 
         payments.clear();
@@ -243,16 +243,16 @@ MySqlAccounts::MySqlAccounts(
 
 
 bool
-MySqlAccounts::select(const string& address, XmrAccount& account)
+MySqlAccounts::select(const string& address, EvoAccount& account)
 {
     try
     {
         conn->check_if_connected();
 
-        Query query = conn->query(XmrAccount::SELECT_STMT2);
+        Query query = conn->query(EvoAccount::SELECT_STMT2);
         query.parse();
 
-        vector<XmrAccount> res;
+        vector<EvoAccount> res;
         query.storein(res, address);
 
         //while(query.more_results());
@@ -301,16 +301,16 @@ MySqlAccounts::insert(const T& data_to_insert)
 
 // Explicitly instantiate insert template for our tables
 template
-uint64_t MySqlAccounts::insert<XmrAccount>(const XmrAccount& data_to_insert);
+uint64_t MySqlAccounts::insert<EvoAccount>(const EvoAccount& data_to_insert);
 template
-uint64_t MySqlAccounts::insert<XmrTransaction>(
-                    const XmrTransaction& data_to_insert);
+uint64_t MySqlAccounts::insert<EvoTransaction>(
+                    const EvoTransaction& data_to_insert);
 template
-uint64_t MySqlAccounts::insert<XmrOutput>(const XmrOutput& data_to_insert);
+uint64_t MySqlAccounts::insert<EvoOutput>(const EvoOutput& data_to_insert);
 template
-uint64_t MySqlAccounts::insert<XmrInput>(const XmrInput& data_to_insert);
+uint64_t MySqlAccounts::insert<EvoInput>(const EvoInput& data_to_insert);
 template
-uint64_t MySqlAccounts::insert<XmrPayment>(const XmrPayment& data_to_insert);
+uint64_t MySqlAccounts::insert<EvoPayment>(const EvoPayment& data_to_insert);
 
 template <typename T>
 uint64_t
@@ -339,12 +339,12 @@ MySqlAccounts::insert(const vector<T>& data_to_insert)
 
 // Explicitly instantiate insert template for our tables
 template
-uint64_t MySqlAccounts::insert<XmrOutput>(
-        const vector<XmrOutput>& data_to_insert);
+uint64_t MySqlAccounts::insert<EvoOutput>(
+        const vector<EvoOutput>& data_to_insert);
 
 template
-uint64_t MySqlAccounts::insert<XmrInput>(
-        const vector<XmrInput>& data_to_insert);
+uint64_t MySqlAccounts::insert<EvoInput>(
+        const vector<EvoInput>& data_to_insert);
 
 template <typename T, size_t query_no>
 bool
@@ -376,34 +376,34 @@ MySqlAccounts::select(uint64_t account_id, vector<T>& selected_data)
 }
 
 template
-bool MySqlAccounts::select<XmrAccount>(uint64_t account_id,
-        vector<XmrAccount>& selected_data);
+bool MySqlAccounts::select<EvoAccount>(uint64_t account_id,
+        vector<EvoAccount>& selected_data);
 
 template
-bool MySqlAccounts::select<XmrTransaction>(uint64_t account_id,
-        vector<XmrTransaction>& selected_data);
+bool MySqlAccounts::select<EvoTransaction>(uint64_t account_id,
+        vector<EvoTransaction>& selected_data);
 
 template
-bool MySqlAccounts::select<XmrOutput>(uint64_t account_id,
-        vector<XmrOutput>& selected_data);
+bool MySqlAccounts::select<EvoOutput>(uint64_t account_id,
+        vector<EvoOutput>& selected_data);
 
 template // this will use SELECT_STMT2 which selectes
         // based on transaction id, not account_id,
-bool MySqlAccounts::select<XmrOutput, 2>(uint64_t tx_id,
-        vector<XmrOutput>& selected_data);
+bool MySqlAccounts::select<EvoOutput, 2>(uint64_t tx_id,
+        vector<EvoOutput>& selected_data);
 
 template
-bool MySqlAccounts::select<XmrInput>(uint64_t account_id,
-        vector<XmrInput>& selected_data);
+bool MySqlAccounts::select<EvoInput>(uint64_t account_id,
+        vector<EvoInput>& selected_data);
 
 template
-bool MySqlAccounts::select<XmrPayment>(uint64_t account_id,
-        vector<XmrPayment>& selected_data);
+bool MySqlAccounts::select<EvoPayment>(uint64_t account_id,
+        vector<EvoPayment>& selected_data);
 
 template // this will use SELECT_STMT2 which selectes
          // based on transaction id, not account_id,
-bool MySqlAccounts::select<XmrInput, 2>(uint64_t tx_id,
-        vector<XmrInput>& selected_data);
+bool MySqlAccounts::select<EvoInput, 2>(uint64_t tx_id,
+        vector<EvoInput>& selected_data);
 
 
 template <typename T>
@@ -431,12 +431,12 @@ MySqlAccounts::update(T const& orginal_row, T const& new_row)
 }
 
 template
-bool MySqlAccounts::update<XmrAccount>(
-        XmrAccount const& orginal_row, XmrAccount const& new_row);
+bool MySqlAccounts::update<EvoAccount>(
+        EvoAccount const& orginal_row, EvoAccount const& new_row);
 
 template
-bool MySqlAccounts::update<XmrPayment>(
-        XmrPayment const& orginal_row, XmrPayment const& new_row);
+bool MySqlAccounts::update<EvoPayment>(
+        EvoPayment const& orginal_row, EvoPayment const& new_row);
 
 template <typename T>
 bool
@@ -447,14 +447,14 @@ MySqlAccounts::select_for_tx(uint64_t tx_id, vector<T>& selected_data)
 
 template // this will use SELECT_STMT2 which selectes based on
          // transaction id, not account_id,
-bool MySqlAccounts::select_for_tx<XmrOutput>(uint64_t tx_id,
-        vector<XmrOutput>& selected_data);
+bool MySqlAccounts::select_for_tx<EvoOutput>(uint64_t tx_id,
+        vector<EvoOutput>& selected_data);
 
 
 template // this will use SELECT_STMT2 which selectes
          //based on transaction id, not account_id,
-bool MySqlAccounts::select_for_tx<XmrInput>(uint64_t tx_id,
-        vector<XmrInput>& selected_data);
+bool MySqlAccounts::select_for_tx<EvoInput>(uint64_t tx_id,
+        vector<EvoInput>& selected_data);
 
 template <typename T>
 bool
@@ -487,24 +487,24 @@ MySqlAccounts::select_by_primary_id(uint64_t id, T& selected_data)
 }
 
 //template
-//bool MySqlAccounts::select_by_primary_id<XmrTransaction>(
-//                           uint64_t id, XmrTransaction& selected_data);
+//bool MySqlAccounts::select_by_primary_id<EvoTransaction>(
+//                           uint64_t id, EvoTransaction& selected_data);
 
 template
-bool MySqlAccounts::select_by_primary_id<XmrInput>(
-        uint64_t id, XmrInput& selected_data);
+bool MySqlAccounts::select_by_primary_id<EvoInput>(
+        uint64_t id, EvoInput& selected_data);
 
 template
-bool MySqlAccounts::select_by_primary_id<XmrOutput>(
-        uint64_t id, XmrOutput& selected_data);
+bool MySqlAccounts::select_by_primary_id<EvoOutput>(
+        uint64_t id, EvoOutput& selected_data);
 
 template
-bool MySqlAccounts::select_by_primary_id<XmrPayment>(
-        uint64_t id, XmrPayment& selected_data);
+bool MySqlAccounts::select_by_primary_id<EvoPayment>(
+        uint64_t id, EvoPayment& selected_data);
 
 bool
 MySqlAccounts::select_txs_for_account_spendability_check(
-        const uint64_t& account_id, vector<XmrTransaction>& txs)
+        const uint64_t& account_id, vector<EvoTransaction>& txs)
 {
 
     for (auto it = txs.begin(); it != txs.end(); )
@@ -515,7 +515,7 @@ MySqlAccounts::select_txs_for_account_spendability_check(
         // older than 10 blocks are permanent, i.e, they wont get
         // orphaned.
 
-        XmrTransaction& tx = *it;
+        EvoTransaction& tx = *it;
 
         if (bool {tx.spendable} == false)
         {
@@ -531,7 +531,7 @@ MySqlAccounts::select_txs_for_account_spendability_check(
                 if (no_row_updated != 1)
                 {
                     cerr << "no_row_updated != 1 due to  "
-                            "xmr_accounts->mark_tx_spendable(tx.id)\n";
+                            "evo_accounts->mark_tx_spendable(tx.id)\n";
                     return false;
                 }
 
@@ -560,7 +560,7 @@ MySqlAccounts::select_txs_for_account_spendability_check(
                     if (no_row_updated != 1)
                     {
                         cerr << "no_row_updated != 1 due to  "
-                                "xmr_accounts->delete_tx(tx.id)\n";
+                                "evo_accounts->delete_tx(tx.id)\n";
                         return false;
                     }
 
@@ -598,21 +598,21 @@ MySqlAccounts::select_txs_for_account_spendability_check(
 
 bool
 MySqlAccounts::select_inputs_for_out(const uint64_t& output_id,
-                                     vector<XmrInput>& ins)
+                                     vector<EvoInput>& ins)
 {
     return mysql_in->select_for_out(output_id, ins);
 }
 
 bool
 MySqlAccounts::output_exists(const string& output_public_key_str,
-                             XmrOutput& out)
+                             EvoOutput& out)
 {
     return mysql_out->exist(output_public_key_str, out);
 }
 
 bool
 MySqlAccounts::tx_exists(const uint64_t& account_id,
-                         const string& tx_hash_str, XmrTransaction& tx)
+                         const string& tx_hash_str, EvoTransaction& tx)
 {
     return mysql_tx->exist(account_id, tx_hash_str, tx);
 }
@@ -637,7 +637,7 @@ MySqlAccounts::delete_tx(const uint64_t& tx_id_no)
 
 bool
 MySqlAccounts::select_payment_by_id(const string& payment_id,
-                                    vector<XmrPayment>& payments)
+                                    vector<EvoPayment>& payments)
 {
     return mysql_payment->select_by_payment_id(payment_id, payments);
 }

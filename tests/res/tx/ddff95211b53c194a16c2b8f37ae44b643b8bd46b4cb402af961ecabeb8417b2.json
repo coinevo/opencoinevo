@@ -142,7 +142,7 @@
              "outputs": [[1, "9fecfbe91a399c46d79d7482cb9b420c7b88591a29fabfb8b6c7af1566299b42", 1000123400000000]]
         }],
     "sender": {
-        "_comment": "monerowalletstagenet3",
+        "_comment": "coinevowalletstagenet3",
         "address": "56heRv2ANffW1Py2kBkJDy8xnWqZsSrgjLygwjua2xc8Wbksead1NK1ehaYpjQhymGK4S8NPL9eLuJ16CuEJDag8Hq3RbPV",
         "amount": 1000123400000000,
         "change": 108874026110000,

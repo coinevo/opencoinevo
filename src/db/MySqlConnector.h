@@ -2,8 +2,8 @@
 // Created by mwo on 9/12/16.
 //
 
-#ifndef RESTBED_XMR_MYSQLCONNECTOR_H
-#define RESTBED_XMR_MYSQLCONNECTOR_H
+#ifndef RESTBED_EVO_MYSQLCONNECTOR_H
+#define RESTBED_EVO_MYSQLCONNECTOR_H
 
 //#include "tools.h"
 
@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-namespace xmreg
+namespace evoeg
 {
 
 using namespace mysqlpp;
@@ -91,4 +91,4 @@ protected:
 }
 
 
-#endif //RESTBED_XMR_MYSQLCONNECTOR_H
+#endif //RESTBED_EVO_MYSQLCONNECTOR_H

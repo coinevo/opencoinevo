@@ -13,31 +13,31 @@
 #include "CurrentBlockchainStatus.h"
 #include "src/UniversalIdentifier.hpp"
 
-namespace xmreg
+namespace evoeg
 {
 
 
 
 
-TxSearch::TxSearch(XmrAccount const& _acc,
+TxSearch::TxSearch(EvoAccount const& _acc,
                    std::shared_ptr<CurrentBlockchainStatus> _current_bc_status)
     : current_bc_status {_current_bc_status}
 {
-    acc = make_shared<XmrAccount>(_acc);
+    acc = make_shared<EvoAccount>(_acc);
 
     // creates an mysql connection for this thread
-    xmr_accounts = make_shared<MySqlAccounts>(current_bc_status);
+    evo_accounts = make_shared<MySqlAccounts>(current_bc_status);
 
     network_type net_type = current_bc_status->get_bc_setup().net_type;
 
 
-    if (!xmreg::parse_str_address(acc->address, address, net_type))
+    if (!evoeg::parse_str_address(acc->address, address, net_type))
     {
         OMERROR << "Cant parse address: " + acc->address;
         throw TxSearchException("Cant parse address: " + acc->address);
     }
 
-    if (!xmreg::parse_str_secret_key(acc->viewkey, viewkey))
+    if (!evoeg::parse_str_secret_key(acc->viewkey, viewkey))
     {
         OMERROR << "Cant parse private view key: " + acc->address;
         throw TxSearchException("Cant parse private view key: "
@@ -168,9 +168,9 @@ if (!current_bc_status->get_txs_in_blocks(blocks,
 // in a given block;
 unique_ptr<DateTime> blk_timestamp_mysql_format;
 
-// searching for our incoming and outgoing xmr has two components.
+// searching for our incoming and outgoing evo has two components.
 //
-// FIRST. to search for the incoming xmr, we use address, viewkey and
+// FIRST. to search for the incoming evo, we use address, viewkey and
 // outputs public key. Its straight forward, as this is what viewkey was
 // designed to do.
 //
@@ -235,7 +235,7 @@ for (auto const& tx_tuple: txs_data)
     auto const& outputs_identified
         = identifier.get<Output>()->get();
 
-    auto total_received = calc_total_xmr(outputs_identified);
+    auto total_received = calc_total_evo(outputs_identified);
 
     vector<uint64_t> amount_specific_indices;
 
@@ -256,7 +256,7 @@ for (auto const& tx_tuple: txs_data)
             = pod_to_hex(identifier.get_tx_pub_key());
         uint64_t mixin_no {0};
         if (!is_coinbase)
-            mixin_no = xmreg::get_mixin_no(tx);
+            mixin_no = evoeg::get_mixin_no(tx);
 
 
         if (!blk_timestamp_mysql_format)
@@ -273,7 +273,7 @@ for (auto const& tx_tuple: txs_data)
             mysql_transaction
                     = unique_ptr<mysqlpp::Transaction>(
                                new mysqlpp::Transaction(
-                                       xmr_accounts->get_connection()
+                                       evo_accounts->get_connection()
                                                ->get_connection()));
 
             // when we rescan blockchain some txs can already
@@ -298,7 +298,7 @@ for (auto const& tx_tuple: txs_data)
                 << blk_height << ", tx: " << tx_hash_str;
 
 
-        XmrTransaction tx_data;
+        EvoTransaction tx_data;
 
         tx_data.id               = mysqlpp::null;
         tx_data.hash             = tx_hash_str;
@@ -330,7 +330,7 @@ for (auto const& tx_tuple: txs_data)
 
 
         // insert tx_data into mysql's Transactions table
-        tx_mysql_id = xmr_accounts->insert(tx_data);
+        tx_mysql_id = evo_accounts->insert(tx_data);
 
         // get amount specific (i.e., global) indices of outputs
         if (!current_bc_status->get_amount_specific_indices(
@@ -350,12 +350,12 @@ for (auto const& tx_tuple: txs_data)
             throw TxSearchException("tx_mysql_id is zero!");
         }
 
-        vector<XmrOutput> outputs_found;
+        vector<EvoOutput> outputs_found;
 
         // now add the found outputs into Outputs tables
         for (auto&& out_info: outputs_identified)
         {
-            XmrOutput out_data;
+            EvoOutput out_data;
 
             out_data.id           = mysqlpp::null;
             out_data.account_id   = account_id;
@@ -387,7 +387,7 @@ for (auto const& tx_tuple: txs_data)
 
         // insert all outputs found into mysql's outputs table
         uint64_t no_rows_inserted
-                = xmr_accounts->insert(outputs_found);
+                = evo_accounts->insert(outputs_found);
 
         if (no_rows_inserted == 0)
         {
@@ -421,7 +421,7 @@ for (auto const& tx_tuple: txs_data)
             = pod_to_hex(identifier.get_tx_pub_key());
         uint64_t mixin_no {0};
         if (mixin_no == 0 && !is_coinbase)
-            mixin_no = xmreg::get_mixin_no(tx);
+            mixin_no = evoeg::get_mixin_no(tx);
 
         if (!blk_timestamp_mysql_format)
         {
@@ -437,7 +437,7 @@ for (auto const& tx_tuple: txs_data)
             mysql_transaction
                     = unique_ptr<mysqlpp::Transaction>(
                     new mysqlpp::Transaction(
-                            xmr_accounts->get_connection()
+                            evo_accounts->get_connection()
                                     ->get_connection()));
 
             // when we rescan blockchain some txs can already
@@ -471,22 +471,22 @@ for (auto const& tx_tuple: txs_data)
                 << "inputs in block " << blk_height << ", tx: "
                 << tx_hash_str;
 
-        vector<XmrInput> inputs_found;
+        vector<EvoInput> inputs_found;
 
         for (auto& in_info: inputs_identfied)
         {
-            XmrOutput out;
+            EvoOutput out;
 
-            if (xmr_accounts->output_exists(
+            if (evo_accounts->output_exists(
                         pod_to_hex(in_info.out_pub_key), out))
             {
 
                 // seems that this key image is ours.
-                // so get it information from database into XmrInput
+                // so get it information from database into EvoInput
                 // database structure that will be written later
                 // on into database.
 
-                XmrInput in_data;
+                EvoInput in_data;
 
                 in_data.id          = mysqlpp::null;
                 in_data.account_id  = acc->id.data;
@@ -500,7 +500,7 @@ for (auto const& tx_tuple: txs_data)
 
                 inputs_found.push_back(in_data);
 
-            } // if (xmr_accounts->output_exists(o
+            } // if (evo_accounts->output_exists(o
 
         } // for (auto& in_info: inputs_identfied)
 
@@ -514,7 +514,7 @@ for (auto const& tx_tuple: txs_data)
             // calculate how much we preasumply spent.
             uint64_t total_sent {0};
 
-            for (const XmrInput& in_data: inputs_found)
+            for (const EvoInput& in_data: inputs_found)
                 total_sent += in_data.amount;
 
             if (tx_mysql_id == 0)
@@ -525,7 +525,7 @@ for (auto const& tx_tuple: txs_data)
                 // so write it to mysql as ours, with
                 // total received of 0.
 
-                XmrTransaction tx_data;
+                EvoTransaction tx_data;
 
                 tx_data.id               = mysqlpp::null;
                 tx_data.hash             = tx_hash_str;
@@ -549,7 +549,7 @@ for (auto const& tx_tuple: txs_data)
                 tx_data.timestamp    = *blk_timestamp_mysql_format;
 
                 // insert tx_data into mysql's Transactions table
-                tx_mysql_id = xmr_accounts->insert(tx_data);
+                tx_mysql_id = evo_accounts->insert(tx_data);
 
                 if (tx_mysql_id == 0)
                 {
@@ -570,12 +570,12 @@ for (auto const& tx_tuple: txs_data)
 
             // save all input found into database at once
             // but first update tx_mysql_id for these inputs
-            for (XmrInput& in_data: inputs_found)
+            for (EvoInput& in_data: inputs_found)
                 in_data.tx_id = tx_mysql_id; // set tx id now.
                                             //before we made it 0
 
             uint64_t no_rows_inserted
-                    = xmr_accounts->insert(inputs_found);
+                    = evo_accounts->insert(inputs_found);
             
             if (no_rows_inserted == 0)
             {
@@ -607,14 +607,14 @@ for (auto const& tx_tuple: txs_data)
 
 std::lock_guard<std::mutex> acc_lck(access_acc);
 
-XmrAccount updated_acc = *acc;
+EvoAccount updated_acc = *acc;
 
 updated_acc.scanned_block_height    = h2;
 updated_acc.scanned_block_timestamp
         = DateTime(static_cast<time_t>(
                        blocks.back().timestamp));
 
-if (xmr_accounts->update(*acc, updated_acc))
+if (evo_accounts->update(*acc, updated_acc))
 {
     // iff success, set acc to updated_acc;
     //cout << "scanned_block_height updated\n";
@@ -708,11 +708,11 @@ TxSearch::still_searching() const
 void
 TxSearch::populate_known_outputs()
 {
-    vector<XmrOutput> outs;
+    vector<EvoOutput> outs;
 
-    if (xmr_accounts->select(acc->id.data, outs))
+    if (evo_accounts->select(acc->id.data, outs))
     {
-        for (const XmrOutput& out: outs)
+        for (const EvoOutput& out: outs)
         {
             public_key out_pub_key;
 
@@ -752,7 +752,7 @@ known_outputs_t known_outputs_keys_copy = get_known_outputs_keys();
 // time in a single connection.
 // so we create local connection here, only to be used in this method.
 
-auto local_xmr_accounts = make_shared<MySqlAccounts>(current_bc_status);
+auto local_evo_accounts = make_shared<MySqlAccounts>(current_bc_status);
 
 MicroCoreAdapter mcore_addapter {current_bc_status_ptr};
 
@@ -778,14 +778,14 @@ auto identifier = make_identifier(tx,
 
 identifier.identify();
 
-// FIRSt step. to search for the incoming xmr, we use address,
+// FIRSt step. to search for the incoming evo, we use address,
 // viewkey and
 // outputs public key.
 
 auto const& outputs_identified 
     = identifier.get<Output>()->get();
 
-auto total_received = calc_total_xmr(outputs_identified);
+auto total_received = calc_total_evo(outputs_identified);
 
 //vector<uint64_t> amount_specific_indices;
 
@@ -801,7 +801,7 @@ if (!outputs_identified.empty())
     auto is_coinbase = cryptonote::is_coinbase(tx);
     uint64_t mixin_no {0};
     if (!is_coinbase)
-        mixin_no = xmreg::get_mixin_no(tx);
+        mixin_no = evoeg::get_mixin_no(tx);
 
     json j_tx;
 
@@ -855,7 +855,7 @@ if (!inputs_identfied.empty())
     uint64_t mixin_no {0};
     auto is_coinbase = cryptonote::is_coinbase(tx);
     if (!is_coinbase)
-        mixin_no = xmreg::get_mixin_no(tx);
+        mixin_no = evoeg::get_mixin_no(tx);
 
     json spend_keys;
     uint64_t total_sent {0};
@@ -865,9 +865,9 @@ if (!inputs_identfied.empty())
         // need to get output info from mysql, as we need
         // to know output's amount, its orginal
         // tx public key and its index in that tx
-        XmrOutput out;
+        EvoOutput out;
 
-        if (local_xmr_accounts->output_exists(
+        if (local_evo_accounts->output_exists(
                     pod_to_hex(in_info.out_pub_key), out))
         {
             total_sent += out.amount;
@@ -917,7 +917,7 @@ if (!inputs_identfied.empty())
             j_tx["hash"]           = tx_hash_str;
             j_tx["tx_pub_key"]     = tx_pub_key_str;
             j_tx["timestamp"]      = recieve_time*1e3; // when it got into mempool
-            j_tx["total_received"] = "0";          // we did not recive any outputs/xmr
+            j_tx["total_received"] = "0";          // we did not recive any outputs/evo
             j_tx["total_sent"]     = std::to_string(total_sent); // to be set later when looking for key images
             j_tx["unlock_time"]    = 0;          // for mempool we set it to zero
                                                  // since we dont have block_height to work with
@@ -947,7 +947,7 @@ if (!inputs_identfied.empty())
 
 
 TxSearch::addr_view_t
-TxSearch::get_xmr_address_viewkey() const
+TxSearch::get_evo_address_viewkey() const
 {
     return make_pair(address, viewkey);
 }
@@ -971,9 +971,9 @@ TxSearch::set_search_thread_life(seconds life_seconds)
 bool
 TxSearch::delete_existing_tx_if_exists(string const& tx_hash)
 {
-    XmrTransaction tx_data_existing;
+    EvoTransaction tx_data_existing;
 
-    if (xmr_accounts->tx_exists(acc->id.data, tx_hash, tx_data_existing))
+    if (evo_accounts->tx_exists(acc->id.data, tx_hash, tx_data_existing))
     {
         OMVLOG1 << '\n' << address_prefix
                   + ": tx " << tx_hash
@@ -982,7 +982,7 @@ TxSearch::delete_existing_tx_if_exists(string const& tx_hash)
         // if tx is already present for that user,
         // we remove it, as we get it data from scrach
 
-        if (xmr_accounts->delete_tx(tx_data_existing.id.data) == 0)
+        if (evo_accounts->delete_tx(tx_data_existing.id.data) == 0)
         {
             OMERROR << address_prefix  + ": cant remove tx "
                     << tx_hash;
@@ -994,7 +994,7 @@ TxSearch::delete_existing_tx_if_exists(string const& tx_hash)
 }
 
 void
-TxSearch::update_acc(XmrAccount const& _acc)
+TxSearch::update_acc(EvoAccount const& _acc)
 {
     std::lock_guard<std::mutex> acc_lck(access_acc);
     *acc = _acc;

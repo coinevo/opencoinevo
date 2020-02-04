@@ -5,7 +5,7 @@
 #include "src/MicroCore.h"
 
 
-namespace xmreg
+namespace evoeg
 {
 
 class CurrentBlockchainStatus;
@@ -14,7 +14,7 @@ class CurrentBlockchainStatus;
  * @brief Returns random ouputs for given amounts
  *
  * This is a replacement for a method that used to be
- * avaliable in the monero itself, but which was dropped.
+ * avaliable in the coinevo itself, but which was dropped.
  *
  * The aim is to get a random ouputs of given amount.
  *
@@ -31,8 +31,8 @@ public:
 
     // the two structures are here to make get_random_outs
     // method work as before. Normally, the used to be defined
-    // in monero, but due to recent changes in 2018 09,
-    // they were removed. However, parts of openmonero
+    // in coinevo, but due to recent changes in 2018 09,
+    // they were removed. However, parts of opencoinevo
     // require them.
     struct out_entry
     {

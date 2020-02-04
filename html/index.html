@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
 
-    <title ng-bind="$root.title + ' - Open Monero'">Open Monero</title>
+    <title ng-bind="$root.title + ' - Open Coinevo'">Open Coinevo</title>
 
     <link href="css/screen.css" media="screen, projection" rel="stylesheet" type="text/css"/>
     <link href="bower_components/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
@@ -39,7 +39,7 @@
     <script src="js/lib/qrcode.min.js?1"></script>
     <script src="js/lib/biginteger.js?1"></script>
     <script src="js/config.js?4"></script>
-    <script src="js/lib/mymonero-core.js?1"></script>
+    <script src="js/lib/mycoinevo-core.js?1"></script>
     <script src="js/crypto.js?1"></script>    
     <script src="js/sha3.js?1"></script>
     <script src="js/nacl-fast-cn.js?1"></script>
@@ -105,10 +105,10 @@
             <div class="w-icon-nav-menu"></div>
         </div>
         <a class="w-nav-brand brand-box" ng-href="{{loggedIn() ? '#!/overview' : '#!/'}}">
-            <span style="font-size: 32px; font-weight: bold;">OPEN MONERO</span>
-            <span style="color:white" ng-show="nettype == 0"><br/>mainnet monero network</span>
-            <span style="color:white" ng-show="nettype == 1"><br/>testnet monero network</span>
-            <span style="color:white" ng-show="nettype == 2"><br/>stagenet monero network</span>
+            <span style="font-size: 32px; font-weight: bold;">OPEN COINEVO</span>
+            <span style="color:white" ng-show="nettype == 0"><br/>mainnet coinevo network</span>
+            <span style="color:white" ng-show="nettype == 1"><br/>testnet coinevo network</span>
+            <span style="color:white" ng-show="nettype == 2"><br/>stagenet coinevo network</span>
         </a>
     </div>
 </div>
@@ -121,10 +121,10 @@
         <div class="w-container">
             <div class="w-row">
                 <div class="w-col w-col-4 middle-footer">
-                    <div class="copyright-text"><a class="footer-link"  href="https://github.com/moneroexamples/restbed-xmr">Source code</a></div>
+                    <div class="copyright-text"><a class="footer-link"  href="https://github.com/coinevoexamples/restbed-evo">Source code</a></div>
                 </div>
                 <div class="w-clearfix footer-link">
-                    The fontend is adapted from <a class="footer-link"  style="margin-left: 0; float: none;" href="https://mymonero.com"> MyMonero</a>
+                    The fontend is adapted from <a class="footer-link"  style="margin-left: 0; float: none;" href="https://mycoinevo.com"> MyCoinevo</a>
                 </div>
                 <div class="w-col w-col-4 bottom-footer-column">
                     <!--

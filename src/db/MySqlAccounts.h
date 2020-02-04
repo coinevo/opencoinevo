@@ -2,8 +2,8 @@
 // Created by mwo on 16/12/16.
 //
 
-#ifndef RESTBED_XMR_MYSQLACCOUNTS_H
-#define RESTBED_XMR_MYSQLACCOUNTS_H
+#ifndef RESTBED_EVO_MYSQLACCOUNTS_H
+#define RESTBED_EVO_MYSQLACCOUNTS_H
 
 #include "../utils.h"
 #include "MySqlConnector.h"
@@ -15,7 +15,7 @@
 
 
 
-namespace xmreg
+namespace evoeg
 {
 
 using namespace mysqlpp;
@@ -23,12 +23,12 @@ using namespace std;
 using namespace nlohmann;
 
 
-class XmrTransactionWithOutsAndIns;
-class XmrInput;
-class XmrOutput;
-class XmrTransaction;
-class XmrPayment;
-class XmrAccount;
+class EvoTransactionWithOutsAndIns;
+class EvoInput;
+class EvoOutput;
+class EvoTransaction;
+class EvoPayment;
+class EvoAccount;
 class Table;
 class CurrentBlockchainStatus;
 
@@ -43,7 +43,7 @@ public:
     MysqlInputs(shared_ptr<MySqlConnector> _conn);
 
     bool
-    select_for_out(const uint64_t& output_id, vector<XmrInput>& ins);
+    select_for_out(const uint64_t& output_id, vector<EvoInput>& ins);
 };
 
 
@@ -58,7 +58,7 @@ public:
     MysqlOutpus(shared_ptr<MySqlConnector> _conn);
 
     bool
-    exist(const string& output_public_key_str, XmrOutput& out);
+    exist(const string& output_public_key_str, EvoOutput& out);
 };
 
 
@@ -79,7 +79,7 @@ public:
     delete_tx(const uint64_t& tx_id_no);
 
     bool
-    exist(const uint64_t& account_id, const string& tx_hash_str, XmrTransaction& tx);
+    exist(const uint64_t& account_id, const string& tx_hash_str, EvoTransaction& tx);
 
     bool
     get_total_recieved(const uint64_t& account_id, uint64_t& amount);
@@ -95,7 +95,7 @@ public:
     MysqlPayments(shared_ptr<MySqlConnector> _conn);
 
     bool
-    select_by_payment_id(const string& payment_id, vector<XmrPayment>& payments);
+    select_by_payment_id(const string& payment_id, vector<EvoPayment>& payments);
 };
 
 
@@ -122,7 +122,7 @@ public:
                   shared_ptr<MySqlConnector> _conn);
 
     bool
-    select(const string& address, XmrAccount& account);
+    select(const string& address, EvoAccount& account);
 
     template <typename T>
     uint64_t
@@ -158,16 +158,16 @@ public:
 
     bool
     select_txs_for_account_spendability_check(const uint64_t& account_id,
-                                              vector<XmrTransaction>& txs);
+                                              vector<EvoTransaction>& txs);
 
     bool
-    select_inputs_for_out(const uint64_t& output_id, vector<XmrInput>& ins);
+    select_inputs_for_out(const uint64_t& output_id, vector<EvoInput>& ins);
 
     bool
-    output_exists(const string& output_public_key_str, XmrOutput& out);
+    output_exists(const string& output_public_key_str, EvoOutput& out);
 
     bool
-    tx_exists(const uint64_t& account_id, const string& tx_hash_str, XmrTransaction& tx);
+    tx_exists(const uint64_t& account_id, const string& tx_hash_str, EvoTransaction& tx);
 
     uint64_t
     mark_tx_spendable(const uint64_t& tx_id_no);
@@ -179,10 +179,10 @@ public:
     delete_tx(const uint64_t& tx_id_no);
 
     bool
-    select_payment_by_id(const string& payment_id, vector<XmrPayment>& payments);
+    select_payment_by_id(const string& payment_id, vector<EvoPayment>& payments);
 
     bool
-    update_payment(XmrPayment& payment_orginal, XmrPayment& payment_new);
+    update_payment(EvoPayment& payment_orginal, EvoPayment& payment_new);
 
     bool
     get_total_recieved(const uint64_t& account_id, uint64_t& amount);
@@ -245,4 +245,4 @@ private:
 }
 
 
-#endif //RESTBED_XMR_MYSQLACCOUNTS_H
+#endif //RESTBED_EVO_MYSQLACCOUNTS_H

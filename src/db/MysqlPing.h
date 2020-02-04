@@ -2,8 +2,8 @@
 // Created by mwo on 12/07/18.
 //
 
-#ifndef OPENMONERO_MYSQLPING_H
-#define OPENMONERO_MYSQLPING_H
+#ifndef OPENCOINEVO_MYSQLPING_H
+#define OPENCOINEVO_MYSQLPING_H
 
 #include "MySqlConnector.h"
 
@@ -11,7 +11,7 @@
 #include <thread>
 #include <atomic>
 
-namespace xmreg
+namespace evoeg
 {
 
 using chrono::seconds;
@@ -48,4 +48,4 @@ private:
 };
 }
 
-#endif //OPENMONERO_MYSQLPING_H
+#endif //OPENCOINEVO_MYSQLPING_H

@@ -3,9 +3,9 @@
 //
 
 #include "BlockchainSetup.h"
-#include "xmregcore/src/tools.h"
+#include "evoegcore/src/tools.h"
 
-namespace xmreg
+namespace evoeg
 {
 
 BlockchainSetup::BlockchainSetup(
@@ -53,7 +53,7 @@ BlockchainSetup::parse_addr_and_viewkey()
         }
 
 
-        if (!xmreg::parse_str_secret_key(
+        if (!evoeg::parse_str_secret_key(
                 import_payment_viewkey_str,
                 import_payment_viewkey))
         {
@@ -106,7 +106,7 @@ BlockchainSetup::get_blockchain_path()
                                + std::to_string(static_cast<int>(net_type)));
     }
 
-    if (!xmreg::get_blockchain_path(blockchain_path, net_type))
+    if (!evoeg::get_blockchain_path(blockchain_path, net_type))
         throw std::runtime_error("Error getting blockchain path.");
 }
 

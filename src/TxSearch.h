@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-namespace xmreg
+namespace evoeg
 {
 
 using namespace std;
@@ -16,7 +16,7 @@ using namespace std;
 using chrono::seconds;
 using namespace literals::chrono_literals;
 
-class XmrAccount;
+class EvoAccount;
 class MySqlAccounts;
 
 class TxSearchException: public std::runtime_error
@@ -69,7 +69,7 @@ private:
     atomic<uint64_t> searched_blk_no;
 
     // represents a row in mysql's Accounts table
-    shared_ptr<XmrAccount> acc;
+    shared_ptr<EvoAccount> acc;
 
     // stores known output public keys.
     // used as a cash to fast look up of
@@ -83,7 +83,7 @@ private:
     // its better to when each thread has its own mysql connection object.
     // this way if one thread crashes, it want take down
     // connection for the entire service
-    std::shared_ptr<MySqlAccounts> xmr_accounts;
+    std::shared_ptr<MySqlAccounts> evo_accounts;
 
     std::shared_ptr<CurrentBlockchainStatus> current_bc_status;
 
@@ -98,7 +98,7 @@ public:
     // make default constructor. useful in testing
     TxSearch() = default;
 
-    TxSearch(XmrAccount const& _acc,
+    TxSearch(EvoAccount const& _acc,
              std::shared_ptr<CurrentBlockchainStatus> _current_bc_status);
 
     virtual void
@@ -129,7 +129,7 @@ public:
     get_known_outputs_keys();
 
     virtual void
-    update_acc(XmrAccount const& _acc);
+    update_acc(EvoAccount const& _acc);
 
     virtual void
     set_exception_ptr()
@@ -175,7 +175,7 @@ public:
                         json* j_transactions);
 
     virtual addr_view_t
-    get_xmr_address_viewkey() const;
+    get_evo_address_viewkey() const;
     
     virtual string
     get_viewkey() const;

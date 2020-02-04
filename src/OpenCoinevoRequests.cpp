@@ -5,7 +5,7 @@
 #define MYSQLPP_SSQLS_NO_STATICS 1
 
 
-#include "OpenMoneroRequests.h"
+#include "OpenCoinevoRequests.h"
 #include "src/UniversalIdentifier.hpp"
 
 #include "db/ssqlses.h"
@@ -13,7 +13,7 @@
 #include "version.h"
 #include "../gen/omversion.h"
 
-namespace xmreg
+namespace evoeg
 {
 
 handel_::handel_(const fetch_func_t& callback):
@@ -30,17 +30,17 @@ handel_::operator()(const shared_ptr< Session > session)
 
 
 
-OpenMoneroRequests::OpenMoneroRequests(
+OpenCoinevoRequests::OpenCoinevoRequests(
         shared_ptr<MySqlAccounts> _acc, 
         shared_ptr<CurrentBlockchainStatus> _current_bc_status):
-    xmr_accounts {_acc}, current_bc_status {_current_bc_status}
+    evo_accounts {_acc}, current_bc_status {_current_bc_status}
 {
 
 }
 
 
 void
-OpenMoneroRequests::login(const shared_ptr<Session> session, const Bytes & body)
+OpenCoinevoRequests::login(const shared_ptr<Session> session, const Bytes & body)
 {
     json j_response;
     json j_request;
@@ -53,7 +53,7 @@ OpenMoneroRequests::login(const shared_ptr<Session> session, const Bytes & body)
         return;
     }
 
-    string xmr_address;
+    string evo_address;
     string view_key;
 
     // this is true for both newly created accounts
@@ -67,7 +67,7 @@ OpenMoneroRequests::login(const shared_ptr<Session> session, const Bytes & body)
 
     try
     {
-        xmr_address       = j_request["address"];
+        evo_address       = j_request["address"];
         view_key          = j_request["view_key"];
         create_accountt   = j_request["create_account"];
         if (j_request.count("generated_locally"))
@@ -96,7 +96,7 @@ OpenMoneroRequests::login(const shared_ptr<Session> session, const Bytes & body)
     // marks if this is new account creation or not
     bool new_account_created {false};
 
-    auto acc = select_account(xmr_address, view_key, false);
+    auto acc = select_account(evo_address, view_key, false);
 
     // first check if new account
     // select this account if its existing one
@@ -104,7 +104,7 @@ OpenMoneroRequests::login(const shared_ptr<Session> session, const Bytes & body)
     {
         // account does not exist, so create new one
         // for this address
-        if (!(acc = create_account(xmr_address, view_key, 
+        if (!(acc = create_account(evo_address, view_key, 
                                    generated_locally)))
         {
             // if creating account failed
@@ -132,7 +132,7 @@ OpenMoneroRequests::login(const shared_ptr<Session> session, const Bytes & body)
     // so by now new account has been created or it already exists
     // so we just login into it.
     
-    if (login_and_start_search_thread(xmr_address, view_key, *acc, j_response))
+    if (login_and_start_search_thread(evo_address, view_key, *acc, j_response))
     {
        // if successfuly logged in and created search thread
        j_response["status"]      = "success";
@@ -144,21 +144,21 @@ OpenMoneroRequests::login(const shared_ptr<Session> session, const Bytes & body)
     else
     {
         // some error with loggin in or search thread start
-        OMERROR << xmr_address.substr(0,6) << ": " 
+        OMERROR << evo_address.substr(0,6) << ": " 
                 << "login_and_start_search_thread failed. "
                 << j_response.dump();
 
         session_close(session, j_response);
         return;
 
-    } // else  if (login_and_start_search_thread(xmr_address,
+    } // else  if (login_and_start_search_thread(evo_address,
 
 
     session_close(session, j_response);
 }
 
 void
-OpenMoneroRequests::ping(const shared_ptr<Session> session, const Bytes & body)
+OpenCoinevoRequests::ping(const shared_ptr<Session> session, const Bytes & body)
 {
     json j_response;
     json j_request;
@@ -171,12 +171,12 @@ OpenMoneroRequests::ping(const shared_ptr<Session> session, const Bytes & body)
         return;
     }
 
-    string xmr_address;
+    string evo_address;
     string view_key;
 
     try
     {
-        xmr_address = j_request["address"];
+        evo_address = j_request["address"];
         view_key    = j_request["view_key"];
     }
     catch (json::exception const& e)
@@ -186,16 +186,16 @@ OpenMoneroRequests::ping(const shared_ptr<Session> session, const Bytes & body)
         return;
     }
 
-    if (!current_bc_status->search_thread_exist(xmr_address, view_key))
+    if (!current_bc_status->search_thread_exist(evo_address, view_key))
     {
-        OMERROR << xmr_address.substr(0,6) + ": search thread does not exist";
+        OMERROR << evo_address.substr(0,6) + ": search thread does not exist";
         session_close(session, j_response, UNPROCESSABLE_ENTITY);
         return;
     }
 
     // ping the search thread that we still need it.
     // otherwise it will finish after some time.
-    if (!current_bc_status->ping_search_thread(xmr_address))
+    if (!current_bc_status->ping_search_thread(evo_address))
     {
         j_response = json {{"status", "error"},
                            {"reason", "Pinging search thread failed."}};
@@ -206,7 +206,7 @@ OpenMoneroRequests::ping(const shared_ptr<Session> session, const Bytes & body)
 
     }
 
-    OMINFO << xmr_address.substr(0,6) + ": search thread ping successful";
+    OMINFO << evo_address.substr(0,6) + ": search thread ping successful";
     
     j_response["status"]  = "success";
     
@@ -214,7 +214,7 @@ OpenMoneroRequests::ping(const shared_ptr<Session> session, const Bytes & body)
 }
 
 void
-OpenMoneroRequests::get_address_txs(
+OpenCoinevoRequests::get_address_txs(
         const shared_ptr< Session > session, const Bytes & body)
 {
     json j_response;
@@ -228,12 +228,12 @@ OpenMoneroRequests::get_address_txs(
         return;
     }
 
-    string xmr_address;
+    string evo_address;
     string view_key;
 
     try
     {
-        xmr_address = j_request["address"];
+        evo_address = j_request["address"];
         view_key    = j_request["view_key"];
     }
     catch (json::exception const& e)
@@ -251,7 +251,7 @@ OpenMoneroRequests::get_address_txs(
     j_response = json {
             {"total_received"         , 0},    // calculated in this function
             {"total_received_unlocked", 0},    // calculated in this function
-            {"scanned_height"         , 0},    // not used. just to match mymonero
+            {"scanned_height"         , 0},    // not used. just to match mycoinevo
             {"scanned_block_height"   , 0},    // taken from Accounts table
             {"scanned_block_timestamp", 0},    // taken from Accounts table
             {"start_height"           , 0},    // blockchain height whencreated
@@ -260,11 +260,11 @@ OpenMoneroRequests::get_address_txs(
     };
 
     // a placeholder for exciting or new account data
-    xmreg::XmrAccount acc;
+    evoeg::EvoAccount acc;
 
     // for this to continue, search thread must have already been
     // created and still exisits.
-    if (!login_and_start_search_thread(xmr_address, view_key, acc, j_response))
+    if (!login_and_start_search_thread(evo_address, view_key, acc, j_response))
     {
         j_response = json {{"status", "error"},
                            {"reason", "Search thread does not exist."}};
@@ -289,16 +289,16 @@ OpenMoneroRequests::get_address_txs(
                 acc.scanned_block_timestamp);
     j_response["blockchain_height"]  = get_current_blockchain_height();
 
-    vector<XmrTransaction> txs;
+    vector<EvoTransaction> txs;
 
-    xmr_accounts->select(acc.id.data, txs);
+    evo_accounts->select(acc.id.data, txs);
 
-    if (xmr_accounts->select_txs_for_account_spendability_check(
+    if (evo_accounts->select_txs_for_account_spendability_check(
                 acc.id.data, txs))
     {
         json j_txs = json::array();
 
-        for (XmrTransaction const& tx: txs)
+        for (EvoTransaction const& tx: txs)
         {
             json j_tx {
                     {"id"             , tx.blockchain_tx_id},
@@ -315,19 +315,19 @@ OpenMoneroRequests::get_address_txs(
                     {"mempool"        , false} // tx in database are never from mempool
             };
 
-            vector<XmrInput> inputs;
+            vector<EvoInput> inputs;
 
-            if (xmr_accounts->select_for_tx(tx.id.data, inputs))
+            if (evo_accounts->select_for_tx(tx.id.data, inputs))
             {
                 json j_spent_outputs = json::array();
 
                 uint64_t total_spent {0};
 
-                for (XmrInput input: inputs)
+                for (EvoInput input: inputs)
                 {
-                    XmrOutput out;
+                    EvoOutput out;
 
-                    if (xmr_accounts->select_by_primary_id(
+                    if (evo_accounts->select_by_primary_id(
                                 input.output_id, out))
                     {
                         total_spent += input.amount;
@@ -345,7 +345,7 @@ OpenMoneroRequests::get_address_txs(
 
                 j_tx["spent_outputs"] = j_spent_outputs;
 
-            } // if (xmr_accounts->select_inputs_for_tx(tx.id, inputs))
+            } // if (evo_accounts->select_inputs_for_tx(tx.id, inputs))
 
             total_received += tx.total_received;
 
@@ -356,21 +356,21 @@ OpenMoneroRequests::get_address_txs(
 
             j_txs.push_back(j_tx);
 
-        } // for (XmrTransaction tx: txs)
+        } // for (EvoTransaction tx: txs)
 
         j_response["total_received"]          = std::to_string(total_received);
         j_response["total_received_unlocked"] = std::to_string(total_received_unlocked);
 
         j_response["transactions"] = j_txs;
 
-    } // if (xmr_accounts->select_txs_for_ac
+    } // if (evo_accounts->select_txs_for_ac
 
     // append txs found in mempool to the json returned
 
     json j_mempool_tx;
 
     if (current_bc_status->find_txs_in_mempool(
-            xmr_address, j_mempool_tx))
+            evo_address, j_mempool_tx))
     {
         if(!j_mempool_tx.empty())
         {
@@ -432,7 +432,7 @@ OpenMoneroRequests::get_address_txs(
 }
 
 void
-OpenMoneroRequests::get_address_info(
+OpenCoinevoRequests::get_address_info(
         const shared_ptr< Session > session, const Bytes & body)
 {
     json j_response;
@@ -446,12 +446,12 @@ OpenMoneroRequests::get_address_info(
         return;
     }
 
-    string xmr_address;
+    string evo_address;
     string view_key;
 
     try
     {
-        xmr_address = j_request["address"];
+        evo_address = j_request["address"];
         view_key    = j_request["view_key"];
     }
     catch (json::exception const& e)
@@ -466,14 +466,14 @@ OpenMoneroRequests::get_address_info(
     string viewkey_hash = make_hash(view_key);
 
     j_response = json {
-            {"locked_funds"           , "0"},    // locked xmr (e.g., younger than 10 blocks)
+            {"locked_funds"           , "0"},    // locked evo (e.g., younger than 10 blocks)
             {"total_received"         , "0"},    // calculated in this function
             {"total_sent"             , "0"},    // calculated in this function
-            {"scanned_height"         , 0},    // not used. it is here to match mymonero
+            {"scanned_height"         , 0},    // not used. it is here to match mycoinevo
             {"scanned_block_height"   , 0},    // taken from Accounts table
             {"scanned_block_timestamp", 0},    // taken from Accounts table
             {"start_height"           , 0},    // not used, but available in Accounts table.
-                                               // it is here to match mymonero
+                                               // it is here to match mycoinevo
             {"blockchain_height"      , 0},    // current blockchain height
             {"spent_outputs"          , nullptr} // list of spent outputs that we think
                                                // user has spent. client side will
@@ -482,22 +482,22 @@ OpenMoneroRequests::get_address_info(
     };
 
     // a placeholder for exciting or new account data
-    xmreg::XmrAccount acc;
+    evoeg::EvoAccount acc;
 
     // for this to continue, search thread must have already been
     // created and still exisits.
-    if (login_and_start_search_thread(xmr_address, view_key, acc, j_response))
+    if (login_and_start_search_thread(evo_address, view_key, acc, j_response))
     {
         uint64_t total_received {0};
 
         // ping the search thread that we still need it.
         // otherwise it will finish after some time.
-        current_bc_status->ping_search_thread(xmr_address);
+        current_bc_status->ping_search_thread(evo_address);
 
         uint64_t current_searched_blk_no {0};
 
         if (current_bc_status->get_searched_blk_no(
-                    xmr_address, current_searched_blk_no))
+                    evo_address, current_searched_blk_no))
         {
             // if current_searched_blk_no is higher than what is in mysql, update it
             // in the search thread. This may occure when manually editing scanned_block_height
@@ -507,7 +507,7 @@ OpenMoneroRequests::get_address_info(
             if (current_searched_blk_no > acc.scanned_block_height + 10)
             {
                 current_bc_status->set_new_searched_blk_no(
-                            xmr_address, acc.scanned_block_height);
+                            evo_address, acc.scanned_block_height);
             }
         }
 
@@ -520,34 +520,34 @@ OpenMoneroRequests::get_address_info(
 
         uint64_t total_sent {0};
 
-        vector<XmrTransaction> txs;
+        vector<EvoTransaction> txs;
 
         // get all txs of for the account
-        xmr_accounts->select(acc.id.data, txs);
+        evo_accounts->select(acc.id.data, txs);
 
         // now, filter out or updated transactions from txs vector that no
         // longer exisit in the recent blocks. Update is done to check for their
         // spendability status.
-        if (xmr_accounts->select_txs_for_account_spendability_check(
+        if (evo_accounts->select_txs_for_account_spendability_check(
                     acc.id.data, txs))
         {
             json j_spent_outputs = json::array();
 
-            for (XmrTransaction tx: txs)
+            for (EvoTransaction tx: txs)
             {
-                vector<XmrOutput> outs;
+                vector<EvoOutput> outs;
 
-                if (xmr_accounts->select_for_tx(tx.id.data, outs))
+                if (evo_accounts->select_for_tx(tx.id.data, outs))
                 {
-                    for (XmrOutput &out: outs)
+                    for (EvoOutput &out: outs)
                     {
                         // check if the output, has been spend
-                        vector<XmrInput> ins;
+                        vector<EvoInput> ins;
 
-                        if (xmr_accounts->select_inputs_for_out(
+                        if (evo_accounts->select_inputs_for_out(
                                     out.id.data, ins))
                         {
-                            for (XmrInput& in: ins)
+                            for (EvoInput& in: ins)
                             {
                                 j_spent_outputs.push_back({
                                     {"amount"     , std::to_string(in.amount)},
@@ -563,11 +563,11 @@ OpenMoneroRequests::get_address_info(
 
                         total_received += out.amount;
 
-                    } //  for (XmrOutput &out: outs)
+                    } //  for (EvoOutput &out: outs)
 
-                } //  if (xmr_accounts->select_outputs_for_tx(tx.id, outs))
+                } //  if (evo_accounts->select_outputs_for_tx(tx.id, outs))
 
-            } // for (XmrTransaction tx: txs)
+            } // for (EvoTransaction tx: txs)
 
 
             j_response["total_received"] = std::to_string(total_received);
@@ -575,9 +575,9 @@ OpenMoneroRequests::get_address_info(
 
             j_response["spent_outputs"]  = j_spent_outputs;
 
-        } // if (xmr_accounts->select_txs_for_account_spendability_check(acc.id, txs))
+        } // if (evo_accounts->select_txs_for_account_spendability_check(acc.id, txs))
 
-    } // if (current_bc_status->search_thread_exist(xmr_address))
+    } // if (current_bc_status->search_thread_exist(evo_address))
     else
     {
         j_response = json {{"status", "error"},
@@ -598,7 +598,7 @@ OpenMoneroRequests::get_address_info(
 
 
 void
-OpenMoneroRequests::get_unspent_outs(
+OpenCoinevoRequests::get_unspent_outs(
         const shared_ptr< Session > session,
         const Bytes & body)
 {
@@ -614,7 +614,7 @@ OpenMoneroRequests::get_unspent_outs(
         return;
     }
 
-    string xmr_address;
+    string evo_address;
     string view_key;
     uint64_t mixin {4};
     bool use_dust {false};
@@ -623,7 +623,7 @@ OpenMoneroRequests::get_unspent_outs(
 
     try
     {
-        xmr_address = j_request["address"];
+        evo_address = j_request["address"];
         view_key    = j_request["view_key"];
 
         mixin       = j_request["mixin"];
@@ -661,16 +661,16 @@ OpenMoneroRequests::get_unspent_outs(
     };
 
     // a placeholder for exciting or new account data
-    xmreg::XmrAccount acc;
+    evoeg::EvoAccount acc;
 
     // select this account if its existing one
 
     // for this to continue, search thread must have already been
     // created and still exisits.
-    if (current_bc_status->search_thread_exist(xmr_address))
+    if (current_bc_status->search_thread_exist(evo_address))
     {
         // populate acc and check view_key
-        if (!login_and_start_search_thread(xmr_address, view_key, acc, j_response))
+        if (!login_and_start_search_thread(evo_address, view_key, acc, j_response))
         {
             // some error with loggin in or search thread start
             session_close(session, j_response);
@@ -682,16 +682,16 @@ OpenMoneroRequests::get_unspent_outs(
 //        uint64_t current_blockchain_height
 //                = current_bc_status->get_current_blockchain_height();
 
-        vector<XmrTransaction> txs;
+        vector<EvoTransaction> txs;
 
         // retrieve txs from mysql associated with the given address
-        if (xmr_accounts->select(acc.id.data, txs))
+        if (evo_accounts->select(acc.id.data, txs))
         {
             // we found some txs.
 
             json& j_outputs = j_response["outputs"];
 
-            for (XmrTransaction& tx: txs)
+            for (EvoTransaction& tx: txs)
             {
                 // we skip over locked outputs
                 // as they cant be spent anyway.
@@ -705,14 +705,14 @@ OpenMoneroRequests::get_unspent_outs(
                 }
 
 
-                vector<XmrOutput> outs;
+                vector<EvoOutput> outs;
 
-                if (!xmr_accounts->select_for_tx(tx.id.data, outs))
+                if (!evo_accounts->select_for_tx(tx.id.data, outs))
                 {
                     continue;
                 }
 
-                for (XmrOutput &out: outs)
+                for (EvoOutput &out: outs)
                 {
                     // skip outputs considered as dust
                     if (out.amount < dust_threshold)
@@ -730,11 +730,11 @@ OpenMoneroRequests::get_unspent_outs(
                     // default case. it will cover 
                     // rct types 1 (Full) and 2 (Simple)
                     // rct types explained here: 
-                    // https://monero.stackexchange.com/questions/3348/what-are-3-types-of-ring-ct-transactions
+                    // https://coinevo.stackexchange.com/questions/3348/what-are-3-types-of-ring-ct-transactions
                     string rct = out.get_rct();
 
                     // based on 
-                    // https://github.com/mymonero/mymonero-app-js/issues/277#issuecomment-469395825
+                    // https://github.com/mycoinevo/mycoinevo-app-js/issues/277#issuecomment-469395825
 
                     if (!tx.is_rct)
                     {
@@ -795,14 +795,14 @@ OpenMoneroRequests::get_unspent_outs(
                             {"spend_key_images", json::array()}
                     };
 
-                    vector<XmrInput> ins;
+                    vector<EvoInput> ins;
 
-                    if (xmr_accounts->select_inputs_for_out(
+                    if (evo_accounts->select_inputs_for_out(
                                 out.id.data, ins))
                     {
                         json& j_ins = j_out["spend_key_images"];
 
-                        for (XmrInput& in: ins)
+                        for (EvoInput& in: ins)
                         {
                             j_ins.push_back(in.key_image);
                         }
@@ -812,11 +812,11 @@ OpenMoneroRequests::get_unspent_outs(
 
                     total_outputs_amount += out.amount;
 
-                }  //for (XmrOutput &out: outs)
+                }  //for (EvoOutput &out: outs)
 
-            } // for (XmrTransaction& tx: txs)
+            } // for (EvoTransaction& tx: txs)
 
-        } //  if (xmr_accounts->select_txs(acc.id, txs))
+        } //  if (evo_accounts->select_txs(acc.id, txs))
 
         j_response["amount"] = std::to_string(total_outputs_amount);
 
@@ -828,7 +828,7 @@ OpenMoneroRequests::get_unspent_outs(
         j_response["per_byte_fee"] = current_bc_status
                                             ->get_dynamic_base_fee_estimate();
 
-    } // if (current_bc_status->search_thread_exist(xmr_address))
+    } // if (current_bc_status->search_thread_exist(evo_address))
     else
     {
         j_response = json {{"status", "error"},
@@ -849,7 +849,7 @@ OpenMoneroRequests::get_unspent_outs(
 }
 
 void
-OpenMoneroRequests::get_random_outs(
+OpenCoinevoRequests::get_random_outs(
         const shared_ptr< Session > session, const Bytes & body)
 {
     json j_request;
@@ -952,7 +952,7 @@ OpenMoneroRequests::get_random_outs(
     {
         j_response["status"] = "error";
         j_response["error"]  = "Error getting random "
-                               "outputs from monero deamon";
+                               "outputs from coinevo deamon";
     }
 
     string response_body = j_response.dump();
@@ -965,7 +965,7 @@ OpenMoneroRequests::get_random_outs(
 
 
 void
-OpenMoneroRequests::submit_raw_tx(
+OpenCoinevoRequests::submit_raw_tx(
         const shared_ptr< Session > session, const Bytes & body)
 {
     json j_request = body_to_json(body);
@@ -1057,9 +1057,9 @@ OpenMoneroRequests::submit_raw_tx(
 //@todo current import_wallet_request end point
 // still requires some work. The reason is that 
 // at this moment it is not clear how it is
-// handled in mymonero-app-js
+// handled in mycoinevo-app-js
 void
-OpenMoneroRequests::import_wallet_request(
+OpenCoinevoRequests::import_wallet_request(
         const shared_ptr< Session > session, const Bytes & body)
 {
 
@@ -1076,12 +1076,12 @@ OpenMoneroRequests::import_wallet_request(
         return;
     }
 
-    string xmr_address;
+    string evo_address;
     string view_key;
 
     try
     {
-        xmr_address = j_request["address"];
+        evo_address = j_request["address"];
         view_key    = j_request["view_key"];
     }
     catch (json::exception const& e)
@@ -1101,9 +1101,9 @@ OpenMoneroRequests::import_wallet_request(
     j_response["error"]  = "Some error occured";
 
     // get account from mysql db if exists
-    auto xmr_account = select_account(xmr_address, view_key);
+    auto evo_account = select_account(evo_address, view_key);
 
-    if (!xmr_account)
+    if (!evo_account)
     {
         // if creation failed, just close the session
         session_close(session, j_response, UNPROCESSABLE_ENTITY,
@@ -1118,7 +1118,7 @@ OpenMoneroRequests::import_wallet_request(
     if (import_fee == 0)
     {
         
-        XmrAccount updated_acc = *xmr_account;
+        EvoAccount updated_acc = *evo_account;
 
         updated_acc.scanned_block_height = 0;
         updated_acc.start_height = 0;
@@ -1133,9 +1133,9 @@ OpenMoneroRequests::import_wallet_request(
         // txsearch tread does the same thing
         // and just few lines blow we update_acc yet again
 
-        if (!xmr_accounts->update(*xmr_account, updated_acc))
+        if (!evo_accounts->update(*evo_account, updated_acc))
         {
-            OMERROR << xmr_address.substr(0,6) +
+            OMERROR << evo_address.substr(0,6) +
                         "Updating scanned_block_height failed!\n";
 
             session_close(session, j_response, UNPROCESSABLE_ENTITY,
@@ -1144,7 +1144,7 @@ OpenMoneroRequests::import_wallet_request(
         }
         
         // change search blk number in the search thread
-        if (!current_bc_status->set_new_searched_blk_no(xmr_address, 0))
+        if (!current_bc_status->set_new_searched_blk_no(evo_address, 0))
         {
             session_close(session, j_response, UNPROCESSABLE_ENTITY,
                           "Updating searched_blk_no failed!");
@@ -1152,7 +1152,7 @@ OpenMoneroRequests::import_wallet_request(
         }
         
         if (!current_bc_status
-                ->update_acc(xmr_address, updated_acc))
+                ->update_acc(evo_address, updated_acc))
         {
             session_close(session, j_response, UNPROCESSABLE_ENTITY,
                           "updating acc in search thread failed!");
@@ -1173,10 +1173,10 @@ OpenMoneroRequests::import_wallet_request(
     // ask for the payment. So we first get payment details
     // associated with the given account.
 
-    auto xmr_payment = select_payment(*xmr_account);
+    auto evo_payment = select_payment(*evo_account);
 
     // something went wrong.
-    if (!xmr_payment)
+    if (!evo_payment)
     {
         session_close(session, j_response, UNPROCESSABLE_ENTITY,
                       "Selecting payment details failed!");
@@ -1184,7 +1184,7 @@ OpenMoneroRequests::import_wallet_request(
     }
 
     // payment id is null
-    if (xmr_payment->id == mysqlpp::null)
+    if (evo_payment->id == mysqlpp::null)
     {
         // no current payment record exist,
         // so we have to create new one.
@@ -1200,17 +1200,17 @@ OpenMoneroRequests::import_wallet_request(
                 current_bc_status->get_account_integrated_address_as_str(
                         random_payment_id8);
 
-        xmr_payment->account_id        = xmr_account->id.data;
-        xmr_payment->payment_id        = pod_to_hex(random_payment_id8);
-        xmr_payment->import_fee        = current_bc_status
-                                            ->get_bc_setup().import_fee; // xmr
-        xmr_payment->request_fulfilled = false;
-        xmr_payment->tx_hash           = ""; // no tx_hash yet with the payment
-        xmr_payment->payment_address   = integrated_address;
+        evo_payment->account_id        = evo_account->id.data;
+        evo_payment->payment_id        = pod_to_hex(random_payment_id8);
+        evo_payment->import_fee        = current_bc_status
+                                            ->get_bc_setup().import_fee; // evo
+        evo_payment->request_fulfilled = false;
+        evo_payment->tx_hash           = ""; // no tx_hash yet with the payment
+        evo_payment->payment_address   = integrated_address;
 
-        if ((payment_table_id = xmr_accounts->insert(*xmr_payment)) == 0)
+        if ((payment_table_id = evo_accounts->insert(*evo_payment)) == 0)
         {
-            OMERROR << xmr_address.substr(0, 6)
+            OMERROR << evo_address.substr(0, 6)
                        + ": failed to create new payment record!";
 
             session_close(session, j_response, UNPROCESSABLE_ENTITY,
@@ -1222,23 +1222,23 @@ OpenMoneroRequests::import_wallet_request(
 
         j_response["payment_id"]        = payment_table_id;
         j_response["import_fee"]        = std::to_string(
-                                            xmr_payment->import_fee);
+                                            evo_payment->import_fee);
         j_response["new_request"]       = true;
         j_response["request_fulfilled"]
-                                        = bool {xmr_payment->request_fulfilled};
-        j_response["payment_address"]   = xmr_payment->payment_address;
+                                        = bool {evo_payment->request_fulfilled};
+        j_response["payment_address"]   = evo_payment->payment_address;
         j_response["status"]            = "Payment not yet received";
         j_response["error"]             = "";
 
         session_close(session, j_response);
         return;
-    } // if (xmr_payment->id == mysqlpp::null)
+    } // if (evo_payment->id == mysqlpp::null)
 
     // payment id is not null, so it means that
     // we have already payment record in our db for that
     // account.
 
-    bool request_fulfilled = bool {xmr_payment->request_fulfilled};
+    bool request_fulfilled = bool {evo_payment->request_fulfilled};
 
     if (request_fulfilled)
     {
@@ -1263,7 +1263,7 @@ OpenMoneroRequests::import_wallet_request(
 
     string integrated_address =
             current_bc_status->get_account_integrated_address_as_str(
-                    xmr_payment->payment_id);
+                    evo_payment->payment_id);
 
     if (integrated_address.empty())
     {
@@ -1272,8 +1272,8 @@ OpenMoneroRequests::import_wallet_request(
         return;
     }
 
-    j_response["payment_id"]        = xmr_payment->payment_id;
-    j_response["import_fee"]        = std::to_string(xmr_payment->import_fee);
+    j_response["payment_id"]        = evo_payment->payment_id;
+    j_response["import_fee"]        = std::to_string(evo_payment->import_fee);
     j_response["new_request"]       = false;
     j_response["request_fulfilled"] = request_fulfilled;
     j_response["payment_address"]   = integrated_address;
@@ -1286,21 +1286,21 @@ OpenMoneroRequests::import_wallet_request(
     // if yes, mark it in mysql
 
     if(current_bc_status->search_if_payment_made(
-            xmr_payment->payment_id,
-            xmr_payment->import_fee,
+            evo_payment->payment_id,
+            evo_payment->import_fee,
             tx_hash_with_payment))
     {
-        XmrPayment updated_xmr_payment = *xmr_payment;
+        EvoPayment updated_evo_payment = *evo_payment;
 
         // updated values
-        updated_xmr_payment.request_fulfilled = true;
-        updated_xmr_payment.tx_hash           = tx_hash_with_payment;
+        updated_evo_payment.request_fulfilled = true;
+        updated_evo_payment.tx_hash           = tx_hash_with_payment;
 
         // save to mysql
-        if (!xmr_accounts->update(*xmr_payment, updated_xmr_payment))
+        if (!evo_accounts->update(*evo_payment, updated_evo_payment))
         {
 
-            OMERROR << xmr_address.substr(0,6) +
+            OMERROR << evo_address.substr(0,6) +
                         "Updating payment db failed!\n";
 
             session_close(session, j_response, UNPROCESSABLE_ENTITY,
@@ -1308,7 +1308,7 @@ OpenMoneroRequests::import_wallet_request(
             return;
         }
 
-        XmrAccount updated_acc = *xmr_account;
+        EvoAccount updated_acc = *evo_account;
 
         updated_acc.scanned_block_height = 0;
         updated_acc.start_height = 0;
@@ -1321,9 +1321,9 @@ OpenMoneroRequests::import_wallet_request(
         // txsearch tread does the same thing
         // and just few lines blow we update_acc yet again
 
-        if (!xmr_accounts->update(*xmr_account, updated_acc))
+        if (!evo_accounts->update(*evo_account, updated_acc))
         {
-            OMERROR << xmr_address.substr(0,6) +
+            OMERROR << evo_address.substr(0,6) +
                         "Updating scanned_block_height failed!\n";
 
             session_close(session, j_response, UNPROCESSABLE_ENTITY,
@@ -1337,7 +1337,7 @@ OpenMoneroRequests::import_wallet_request(
 
         // change search blk number in the search thread
         if (!current_bc_status
-                ->set_new_searched_blk_no(xmr_address, 0))
+                ->set_new_searched_blk_no(evo_address, 0))
         {
             session_close(session, j_response, UNPROCESSABLE_ENTITY,
                           "updating searched_blk_no failed!");
@@ -1345,7 +1345,7 @@ OpenMoneroRequests::import_wallet_request(
         }
 
         if (!current_bc_status
-                ->update_acc(xmr_address, updated_acc))
+                ->update_acc(evo_address, updated_acc))
         {
             session_close(session, j_response, UNPROCESSABLE_ENTITY,
                           "updating acc in search thread failed!");
@@ -1368,7 +1368,7 @@ OpenMoneroRequests::import_wallet_request(
 
 
 void
-OpenMoneroRequests::import_recent_wallet_request(
+OpenCoinevoRequests::import_recent_wallet_request(
         const shared_ptr< Session > session, const Bytes & body)
 {
     json j_response;
@@ -1389,17 +1389,17 @@ OpenMoneroRequests::import_recent_wallet_request(
         return;
     }
 
-    string xmr_address;
+    string evo_address;
     string view_key;
 
     try
     {
-        xmr_address = j_request["address"];
+        evo_address = j_request["address"];
         view_key    = j_request["view_key"];
     }
     catch (json::exception const& e)
     {
-        OMERROR << xmr_address.substr(0,6) 
+        OMERROR << evo_address.substr(0,6) 
                 << ": json exception: " << e.what();
         session_close(session, j_response, UNPROCESSABLE_ENTITY,
                       e.what());
@@ -1426,9 +1426,9 @@ OpenMoneroRequests::import_recent_wallet_request(
     }
     
     // get account from mysql db if exists
-    auto xmr_account = select_account(xmr_address, view_key);
+    auto evo_account = select_account(evo_address, view_key);
 
-    if (!xmr_account)
+    if (!evo_account)
     {
         // if creation failed, just close the session
         session_close(session, j_response, UNPROCESSABLE_ENTITY,
@@ -1448,9 +1448,9 @@ OpenMoneroRequests::import_recent_wallet_request(
             = std::min(no_blocks_to_import,
                       current_blkchain_height);
 
-    XmrAccount& acc = *xmr_account;
+    EvoAccount& acc = *evo_account;
 
-    XmrAccount updated_acc = acc;
+    EvoAccount updated_acc = acc;
 
     // make sure scanned_block_height is larger than
     // no_blocks_to_import so we dont
@@ -1480,7 +1480,7 @@ OpenMoneroRequests::import_recent_wallet_request(
     updated_acc.scanned_block_height
             = updated_acc.scanned_block_height - no_blocks_to_import;
 
-    if (!xmr_accounts->update(acc, updated_acc))
+    if (!evo_accounts->update(acc, updated_acc))
     {
         session_close(session, j_response, UNPROCESSABLE_ENTITY,
                       "Updating account failed!");
@@ -1489,7 +1489,7 @@ OpenMoneroRequests::import_recent_wallet_request(
 
     // change search blk number in the search thread
     if (!current_bc_status
-            ->set_new_searched_blk_no(xmr_address,
+            ->set_new_searched_blk_no(evo_address,
                         updated_acc.scanned_block_height))
     {
         session_close(session, j_response, UNPROCESSABLE_ENTITY,
@@ -1498,7 +1498,7 @@ OpenMoneroRequests::import_recent_wallet_request(
     }
 
     if (!current_bc_status
-            ->update_acc(xmr_address, updated_acc))
+            ->update_acc(evo_address, updated_acc))
     {
         session_close(session, j_response, UNPROCESSABLE_ENTITY,
                       "updating acc in search thread failed!");
@@ -1521,7 +1521,7 @@ OpenMoneroRequests::import_recent_wallet_request(
 
 
 void
-OpenMoneroRequests::get_tx(
+OpenCoinevoRequests::get_tx(
         const shared_ptr< Session > session, const Bytes & body)
 {
     json j_response;
@@ -1535,13 +1535,13 @@ OpenMoneroRequests::get_tx(
         return;
     }
 
-    string xmr_address;
+    string evo_address;
     string view_key;
     string tx_hash_str;
 
     try
     {
-        xmr_address = j_request["address"];
+        evo_address = j_request["address"];
         view_key    = j_request["view_key"];
         tx_hash_str = j_request["tx_hash"];
     }
@@ -1616,7 +1616,7 @@ OpenMoneroRequests::get_tx(
     j_response["tx_hash"]  = pod_to_hex(tx_hash);
 
     j_response["pub_key"]  = pod_to_hex(
-                xmreg::get_tx_pub_key_from_received_outs(tx));
+                evoeg::get_tx_pub_key_from_received_outs(tx));
 
 
     bool coinbase = is_coinbase(tx);
@@ -1626,27 +1626,27 @@ OpenMoneroRequests::get_tx(
     // key images of inputs
     vector<txin_to_key> input_key_imgs;
 
-    // public keys and xmr amount of outputs
+    // public keys and evo amount of outputs
     vector<pair<txout_to_key, uint64_t>> output_pub_keys;
 
-    uint64_t xmr_inputs;
-    uint64_t xmr_outputs;
+    uint64_t evo_inputs;
+    uint64_t evo_outputs;
     uint64_t num_nonrct_inputs;
     uint64_t fee {0};
     uint64_t mixin_no;
     uint64_t size;
 
-    // sum xmr in inputs and ouputs in the given tx
-    array<uint64_t, 4> const& sum_data = xmreg::summary_of_in_out_rct(
+    // sum evo in inputs and ouputs in the given tx
+    array<uint64_t, 4> const& sum_data = evoeg::summary_of_in_out_rct(
             tx, output_pub_keys, input_key_imgs);
 
-    xmr_outputs       = sum_data[0];
-    xmr_inputs        = sum_data[1];
+    evo_outputs       = sum_data[0];
+    evo_inputs        = sum_data[1];
     mixin_no          = sum_data[2];
     num_nonrct_inputs = sum_data[3];
 
-    j_response["xmr_outputs"]    = xmr_outputs;
-    j_response["xmr_inputs"]     = xmr_inputs;
+    j_response["evo_outputs"]    = evo_outputs;
+    j_response["evo_inputs"]     = evo_inputs;
     j_response["mixin_no"]       = mixin_no;
     j_response["num_of_outputs"] = output_pub_keys.size();
     j_response["num_of_inputs"]  = input_key_imgs.size();
@@ -1698,7 +1698,7 @@ OpenMoneroRequests::get_tx(
 
     MicroCoreAdapter mcore_addapter {current_bc_status.get()};
 
-    // to get info about recived xmr in this tx, we calculate it from
+    // to get info about recived evo in this tx, we calculate it from
     // scrach, i.e., search for outputs. We could get this info
     // directly from the database, but doing it again here, is a good way
     // to double check tx data in the frontend, and also maybe try doing
@@ -1707,8 +1707,8 @@ OpenMoneroRequests::get_tx(
     // but its worth double checking
     // the mysql data, and also allows for new
     // implementation in the frontend.
-    if (current_bc_status->get_xmr_address_viewkey(
-                xmr_address, address_info, viewkey))
+    if (current_bc_status->get_evo_address_viewkey(
+                evo_address, address_info, viewkey))
     {
     
         auto identifier = make_identifier(tx, 
@@ -1719,7 +1719,7 @@ OpenMoneroRequests::get_tx(
         auto const& outputs_identified 
                 = identifier.get<Output>()->get();
 
-        auto total_received = calc_total_xmr(outputs_identified);
+        auto total_received = calc_total_evo(outputs_identified);
 
         j_response["total_received"] = std::to_string(total_received);
 
@@ -1737,10 +1737,10 @@ OpenMoneroRequests::get_tx(
         // get account id of the user asking for tx details.
 
         // a placeholder for exciting or new account data
-        XmrAccount acc;
+        EvoAccount acc;
 
         // select this account if its existing one
-        if (xmr_accounts->select(xmr_address, acc))
+        if (evo_accounts->select(evo_address, acc))
         {
             // if user exist, get tx data from database
             // this will work only for tx in the blockchain,
@@ -1751,29 +1751,29 @@ OpenMoneroRequests::get_tx(
                 // if not in mempool, but in blockchain, just
                 // get data aout key images from the mysql
 
-                XmrTransaction xmr_tx;
+                EvoTransaction evo_tx;
 
-                if (xmr_accounts->tx_exists(
-                            acc.id.data, tx_hash_str, xmr_tx))
+                if (evo_accounts->tx_exists(
+                            acc.id.data, tx_hash_str, evo_tx))
                 {
-                    j_response["payment_id"] = xmr_tx.payment_id;
+                    j_response["payment_id"] = evo_tx.payment_id;
                     j_response["timestamp"]
-                            = static_cast<uint64_t>(xmr_tx.timestamp*1e3);
+                            = static_cast<uint64_t>(evo_tx.timestamp*1e3);
 
-                    vector<XmrInput> inputs;
+                    vector<EvoInput> inputs;
 
-                    if (xmr_accounts->select_for_tx(
-                                xmr_tx.id.data, inputs))
+                    if (evo_accounts->select_for_tx(
+                                evo_tx.id.data, inputs))
                     {
                         json j_spent_outputs = json::array();
 
                         uint64_t total_spent {0};
 
-                        for (XmrInput input: inputs)
+                        for (EvoInput input: inputs)
                         {
-                            XmrOutput out;
+                            EvoOutput out;
 
-                            if (xmr_accounts
+                            if (evo_accounts
                                     ->select_by_primary_id(
                                         input.output_id, out))
                             {
@@ -1787,15 +1787,15 @@ OpenMoneroRequests::get_tx(
                                       {"mixin"      , out.mixin}});
                             }
 
-                        } // for (XmrInput input: inputs)
+                        } // for (EvoInput input: inputs)
 
                         j_response["total_sent"]    = std::to_string(total_spent);
 
                         j_response["spent_outputs"] = j_spent_outputs;
 
-                    } // if (xmr_accounts->select_inputs_
+                    } // if (evo_accounts->select_inputs_
 
-                }  // if (xmr_accounts->tx_exists(acc.id
+                }  // if (evo_accounts->tx_exists(acc.id
 
             } // if (!tx_in_mempool)
             else
@@ -1808,7 +1808,7 @@ OpenMoneroRequests::get_tx(
                 unordered_map<public_key, uint64_t> known_outputs_keys;
 
                 if (current_bc_status->get_known_outputs_keys(
-                        xmr_address, known_outputs_keys))
+                        evo_address, known_outputs_keys))
                 {
                     // we got known_outputs_keys from the search thread.
                     // so now we can use OutputInputIdentification to
@@ -1838,12 +1838,12 @@ OpenMoneroRequests::get_tx(
                         // need to get output info from mysql, as we need
                         // to know output's amount, its orginal
                         // tx public key and its index in that tx
-                        XmrOutput out;
+                        EvoOutput out;
 
                         string out_pub_key
                                 = pod_to_hex(in_info.out_pub_key);
 
-                        if (xmr_accounts->output_exists(out_pub_key, out))
+                        if (evo_accounts->output_exists(out_pub_key, out))
                         {
                             total_spent += out.amount;
 
@@ -1862,13 +1862,13 @@ OpenMoneroRequests::get_tx(
                     j_response["spent_outputs"] = j_spent_outputs;
 
                 } //if (current_bc_status->get_known_outputs_keys(
-                  //    xmr_address, known_outputs_keys))
+                  //    evo_address, known_outputs_keys))
 
             } //  else
 
-        } //  if (xmr_accounts->select(xmr_address, acc))
+        } //  if (evo_accounts->select(evo_address, acc))
 
-    } //  if (current_bc_status->get_xmr_add
+    } //  if (current_bc_status->get_evo_add
 
     j_response["tx_height"]         = tx_height;
     j_response["no_confirmations"]  = no_confirmations;
@@ -1885,7 +1885,7 @@ OpenMoneroRequests::get_tx(
 
 
 void
-OpenMoneroRequests::get_version(
+OpenCoinevoRequests::get_version(
         const shared_ptr< Session > session,
         const Bytes & body)
 {
@@ -1896,8 +1896,8 @@ OpenMoneroRequests::get_version(
         {"last_git_commit_hash", string {GIT_COMMIT_HASH}},
         {"last_git_commit_date", string {GIT_COMMIT_DATETIME}},
         {"git_branch_name"     , string {GIT_BRANCH_NAME}},
-        {"monero_version_full" , string {MONERO_VERSION_FULL}},
-        {"api"                 , OPENMONERO_RPC_VERSION},
+        {"coinevo_version_full" , string {COINEVO_VERSION_FULL}},
+        {"api"                 , OPENCOINEVO_RPC_VERSION},
         {"testnet"             , current_bc_status->get_bc_setup().net_type
                     == network_type::TESTNET},
         {"network_type"        , current_bc_status->get_bc_setup().net_type},
@@ -1914,8 +1914,8 @@ OpenMoneroRequests::get_version(
 
 
 shared_ptr<Resource>
-OpenMoneroRequests::make_resource(
-        function< void (OpenMoneroRequests&, const shared_ptr< Session >,
+OpenCoinevoRequests::make_resource(
+        function< void (OpenCoinevoRequests&, const shared_ptr< Session >,
                         const Bytes& ) > handle_func,
         const string& path)
 {
@@ -1934,7 +1934,7 @@ OpenMoneroRequests::make_resource(
 
 
 void
-OpenMoneroRequests::generic_options_handler(
+OpenCoinevoRequests::generic_options_handler(
         const shared_ptr< Session > session )
 {
     const auto request = session->get_request( );
@@ -1951,7 +1951,7 @@ OpenMoneroRequests::generic_options_handler(
 
 
 multimap<string, string>
-OpenMoneroRequests::make_headers(
+OpenCoinevoRequests::make_headers(
         const multimap<string, string>& extra_headers)
 {
     multimap<string, string> headers {
@@ -1966,20 +1966,20 @@ OpenMoneroRequests::make_headers(
 };
 
 void
-OpenMoneroRequests::print_json_log(const string& text, const json& j)
+OpenCoinevoRequests::print_json_log(const string& text, const json& j)
 {
     cout << text << '\n' << j.dump(4) << endl;
 }
 
 
 string
-OpenMoneroRequests::body_to_string(const Bytes & body)
+OpenCoinevoRequests::body_to_string(const Bytes & body)
 {
     return string(reinterpret_cast<const char *>(body.data()), body.size());
 }
 
 json
-OpenMoneroRequests::body_to_json(const Bytes & body)
+OpenCoinevoRequests::body_to_json(const Bytes & body)
 {
     json j = json::parse(body_to_string(body));
     return j;
@@ -1987,21 +1987,21 @@ OpenMoneroRequests::body_to_json(const Bytes & body)
 
 
 uint64_t
-OpenMoneroRequests::get_current_blockchain_height() const
+OpenCoinevoRequests::get_current_blockchain_height() const
 {
     return current_bc_status->get_current_blockchain_height();
 }
 
 bool
-OpenMoneroRequests::login_and_start_search_thread(
-                        const string& xmr_address,
+OpenCoinevoRequests::login_and_start_search_thread(
+                        const string& evo_address,
                         const string& view_key,
-                        XmrAccount& acc,
+                        EvoAccount& acc,
                         json& j_response)
 {
 
     // select this account if its existing one
-    if (xmr_accounts->select(xmr_address, acc))
+    if (evo_accounts->select(evo_address, acc))
     {
         // we got accunt from the database. we double check
         // if hash of provided viewkey by the frontend, matches
@@ -2093,7 +2093,7 @@ OpenMoneroRequests::login_and_start_search_thread(
 
 
 bool
-OpenMoneroRequests::parse_request(
+OpenCoinevoRequests::parse_request(
         const Bytes& body,
         vector<string>& values_map,
         json& j_request,
@@ -2123,7 +2123,7 @@ OpenMoneroRequests::parse_request(
     }
     catch (std::exception& e)
     {
-        cerr << "OpenMoneroRequests::parse_request: " << e.what() << endl;
+        cerr << "OpenCoinevoRequests::parse_request: " << e.what() << endl;
 
         j_response["status"] = "error";
         j_response["reason"] = "reqest json parsing failed";
@@ -2133,20 +2133,20 @@ OpenMoneroRequests::parse_request(
 }
 
 
-boost::optional<XmrAccount>
-OpenMoneroRequests::create_account(
-        string const& xmr_address,
+boost::optional<EvoAccount>
+OpenCoinevoRequests::create_account(
+        string const& evo_address,
         string const& view_key,
         bool generated_locally) const
 {
-    boost::optional<XmrAccount> acc = XmrAccount{};
+    boost::optional<EvoAccount> acc = EvoAccount{};
 
-    if (xmr_accounts->select(xmr_address, *acc))
+    if (evo_accounts->select(evo_address, *acc))
     {
         // if acc already exist, just return 
         // existing oneo
         
-        OMINFO << xmr_address.substr(0,6) 
+        OMINFO << evo_address.substr(0,6) 
                <<  ": account already exists. "
                << "Return existing account";
 
@@ -2171,7 +2171,7 @@ OpenMoneroRequests::create_account(
     }
 
     DateTime blk_timestamp_mysql_format
-            = XmrTransaction::timestamp_to_DateTime(
+            = EvoTransaction::timestamp_to_DateTime(
                 current_blockchain_timestamp);
 
 
@@ -2180,7 +2180,7 @@ OpenMoneroRequests::create_account(
     //wallets. The simples way is when import is free and this
     //should already work. More problematic is how to set these
     //fields when import fee is non-zero. It depends
-    //how mymonero is doing this. At the momemnt, I'm not sure.
+    //how mycoinevo is doing this. At the momemnt, I'm not sure.
     
     uint64_t start_height  =  current_blockchain_height;
     uint64_t scanned_block_height = current_blockchain_height;
@@ -2204,9 +2204,9 @@ OpenMoneroRequests::create_account(
     }
 
     // create new account
-    acc = XmrAccount(
+    acc = EvoAccount(
                    mysqlpp::null,
-                   xmr_address,
+                   evo_address,
                    make_hash(view_key),
                    scanned_block_height,
                    blk_timestamp_mysql_format,
@@ -2216,10 +2216,10 @@ OpenMoneroRequests::create_account(
     uint64_t acc_id {0};
 
     // insert the new account into the mysql
-    if ((acc_id = xmr_accounts->insert(*acc)) == 0)
+    if ((acc_id = evo_accounts->insert(*acc)) == 0)
     {
         // if creating account failed
-        OMERROR << xmr_address.substr(0,6) 
+        OMERROR << evo_address.substr(0,6) 
                 << ": account creation failed: "
                 << (*acc) ;
 
@@ -2236,17 +2236,17 @@ OpenMoneroRequests::create_account(
     return acc;
 }
 
-boost::optional<XmrAccount>
-OpenMoneroRequests::select_account(
-        string const& xmr_address,
+boost::optional<EvoAccount>
+OpenCoinevoRequests::select_account(
+        string const& evo_address,
         string const& view_key,
         bool create_if_notfound) const 
 {
-    boost::optional<XmrAccount> acc = XmrAccount{};
+    boost::optional<EvoAccount> acc = EvoAccount{};
 
-    if (!xmr_accounts->select(xmr_address, *acc))
+    if (!evo_accounts->select(evo_address, *acc))
     {
-        OMINFO << xmr_address.substr(0,6) +
+        OMINFO << evo_address.substr(0,6) +
                    ": address does not exists";
 
         if (!create_if_notfound)
@@ -2256,9 +2256,9 @@ OpenMoneroRequests::select_account(
         }
 
         // for this address
-        if (!(acc = create_account(xmr_address, view_key)))
+        if (!(acc = create_account(evo_address, view_key)))
         {
-            OMERROR << xmr_address.substr(0,6) 
+            OMERROR << evo_address.substr(0,6) 
                     << ": create_account failed";
             return {};
         }
@@ -2267,7 +2267,7 @@ OpenMoneroRequests::select_account(
         // make and start a search thread for it
         if (!make_search_thread(*acc))
         {
-            OMERROR << xmr_address.substr(0,6) 
+            OMERROR << evo_address.substr(0,6) 
                     << ": make_search_thread failed";
             return {};
         }
@@ -2278,7 +2278,7 @@ OpenMoneroRequests::select_account(
 
     if (viewkey_hash != acc->viewkey_hash)
     {
-        OMWARN << xmr_address.substr(0,6) +
+        OMWARN << evo_address.substr(0,6) +
                    ": viewkey does not match " +
                    "the one in database!";
         return {};
@@ -2288,8 +2288,8 @@ OpenMoneroRequests::select_account(
 }
 
 bool 
-OpenMoneroRequests::make_search_thread(
-        XmrAccount& acc) const 
+OpenCoinevoRequests::make_search_thread(
+        EvoAccount& acc) const 
 {
     if (current_bc_status->search_thread_exist(acc.address))
     {
@@ -2314,55 +2314,55 @@ OpenMoneroRequests::make_search_thread(
                 acc, std::move(tx_search));
 }
 
-boost::optional<XmrPayment>
-OpenMoneroRequests::select_payment(
-        XmrAccount const& xmr_account) const
+boost::optional<EvoPayment>
+OpenCoinevoRequests::select_payment(
+        EvoAccount const& evo_account) const
 {
-     vector<XmrPayment> xmr_payments;
+     vector<EvoPayment> evo_payments;
 
-     if (!xmr_accounts->select(xmr_account.id.data,
-                               xmr_payments))
+     if (!evo_accounts->select(evo_account.id.data,
+                               evo_payments))
      {
-         OMINFO << xmr_account.address.substr(0,6) +
+         OMINFO << evo_account.address.substr(0,6) +
                     ": no payment record found!";
 
          // so create empty record to be inserted into
          // db after.
-         XmrPayment xmr_payment;
-         xmr_payment.id = mysqlpp::null;
+         EvoPayment evo_payment;
+         evo_payment.id = mysqlpp::null;
 
-         return xmr_payment;
+         return evo_payment;
      }
 
-     if (xmr_payments.size() > 1)
+     if (evo_payments.size() > 1)
      {
-         OMERROR << xmr_account.address.substr(0,6) +
+         OMERROR << evo_account.address.substr(0,6) +
                     ": more than one payment record found!";
          return {};
      }
 
-     // if xmr_payments is empty it means
+     // if evo_payments is empty it means
      // that the given account has no import
      // paymnet record created. so new
      // paymnet will be created
-     if (xmr_payments.empty())
+     if (evo_payments.empty())
      {                  
-         OMINFO << xmr_account.address.substr(0,6) +
+         OMINFO << evo_account.address.substr(0,6) +
                     ": no payment record found!";
 
          // so create empty record to be inserted into
          // db after.
-         XmrPayment xmr_payment;
-         xmr_payment.id = mysqlpp::null;
+         EvoPayment evo_payment;
+         evo_payment.id = mysqlpp::null;
 
-         return xmr_payment;
+         return evo_payment;
      }
 
-     return xmr_payments.at(0);
+     return evo_payments.at(0);
 }
 
 void
-OpenMoneroRequests::session_close(
+OpenCoinevoRequests::session_close(
         const shared_ptr< Session > session,
         json& j_response,
         int return_code,

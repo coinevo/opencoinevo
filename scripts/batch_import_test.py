@@ -11,10 +11,10 @@ from functools import partial
 from time import time
 
 import aiohttp
-import monero
+import coinevo
 
 
-# openmonero backend url
+# opencoinevo backend url
 om_url = "http://127.0.0.1:1984/"
 #om_url = "http://139.162.60.17:1984/"
 
@@ -32,7 +32,7 @@ async def make_request(url, payload=""):
                 return result
 
 @dataclass
-class OpenMonero:
+class OpenCoinevo:
 
     address: str
     viewkey: str
@@ -72,7 +72,7 @@ class OpenMonero:
 
 def new_address(n, net_type='stagenet'):
     # n is not used
-    s = monero.seed.Seed()
+    s = coinevo.seed.Seed()
     s_address = s.public_address(net_type)
     s_viewkey = s.secret_view_key()
     return str(s_address), s_viewkey
@@ -110,7 +110,7 @@ async def create_tasks(n=10, net_type='stagenet'):
 
             print(f"\n{i}/{n}: {s_address}")
 
-            om = OpenMonero(s_address, s_viewkey)
+            om = OpenCoinevo(s_address, s_viewkey)
 
             requests_list.append(ct(om.get_version()))
             requests_list.append(ct(om.login()))
@@ -127,7 +127,7 @@ async def create_tasks(n=10, net_type='stagenet'):
 async def main():
 
     parser = argparse.ArgumentParser(
-            description='OpenMonero account imports.')
+            description='OpenCoinevo account imports.')
    
     parser.add_argument("-n", "--number", 
             help="number of accounts to import", type=int, 

@@ -12,7 +12,7 @@
 #include <memory>
 
 
-namespace xmreg {
+namespace evoeg {
 
 
 string MySqlConnector::url;

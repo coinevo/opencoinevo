@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(myxmr)
+project(myevo)
 
 set(SOURCE_FILES
 		CmdLineOptions.cpp
@@ -8,7 +8,7 @@ set(SOURCE_FILES
         db/MySqlConnector.cpp
         db/MySqlAccounts.cpp
         db/ssqlses.cpp
-		OpenMoneroRequests.cpp
+		OpenCoinevoRequests.cpp
 		TxSearch.cpp
         RPCCalls.cpp
 		omversion.h.in
@@ -19,16 +19,16 @@ set(SOURCE_FILES
         utils.cpp
         RandomOutputs.cpp)
 
-add_library(myxmr STATIC
+add_library(myevo STATIC
     ${SOURCE_FILES})
 
-target_link_libraries(myxmr 
+target_link_libraries(myevo 
     PUBLIC
-    XMREG::core 
+    EVOEG::core 
     ${restbed_LIBRARY}
     ${MYSQLPP_LIBRARIES})
 
-target_include_directories(myxmr 
+target_include_directories(myevo 
     PUBLIC
     ${restbed_INCLUDE}
     ${MYSQLPP_INCLUDE_DIRS})

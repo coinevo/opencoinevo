@@ -6,10 +6,10 @@
 #include "src/UniversalIdentifier.hpp"
 
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "openmonero"
+#undef COINEVO_DEFAULT_LOG_CATEGORY
+#define COINEVO_DEFAULT_LOG_CATEGORY "opencoinevo"
 
-namespace xmreg
+namespace evoeg
 {
 
 CurrentBlockchainStatus::CurrentBlockchainStatus(
@@ -96,9 +96,9 @@ CurrentBlockchainStatus::update_current_blockchain_height()
     uint64_t tmp {0};
 
     // This rpc call not only gets the blockchain height
-    // but it also serves as a "ping" into the Monero
+    // but it also serves as a "ping" into the Coinevo
     // deamon to keep the connection between the
-    // openmonero backend and the deamon alive
+    // opencoinevo backend and the deamon alive
     if (rpc->get_current_height(tmp))
     {
         current_height = tmp - 1;
@@ -109,7 +109,7 @@ CurrentBlockchainStatus::update_current_blockchain_height()
 }
 
 bool
-CurrentBlockchainStatus::init_monero_blockchain()
+CurrentBlockchainStatus::init_coinevo_blockchain()
 {
     // initialize the core using the blockchain path
     return mcore->init(bc_setup.blockchain_path, bc_setup.net_type);}
@@ -799,7 +799,7 @@ CurrentBlockchainStatus::get_output_key(
 
 bool
 CurrentBlockchainStatus::start_tx_search_thread(
-        XmrAccount acc, std::unique_ptr<TxSearch> tx_search)
+        EvoAccount acc, std::unique_ptr<TxSearch> tx_search)
 {
     std::lock_guard<std::mutex> lck (searching_threads_map_mtx);
 
@@ -812,7 +812,7 @@ CurrentBlockchainStatus::start_tx_search_thread(
 
     try
     {
-        // launch SearchTx thread for the given xmr account
+        // launch SearchTx thread for the given evo account
 
         searching_threads.insert(
             {acc.address, ThreadRAII2<TxSearch>(std::move(tx_search))});
@@ -913,7 +913,7 @@ CurrentBlockchainStatus::search_thread_exist(
 }
 
 bool
-CurrentBlockchainStatus::get_xmr_address_viewkey(
+CurrentBlockchainStatus::get_evo_address_viewkey(
         const string& address_str,
         address_parse_info& address,
         secret_key& viewkey)
@@ -929,9 +929,9 @@ CurrentBlockchainStatus::get_xmr_address_viewkey(
     }
 
     address = get_search_thread(address_str)
-            .get_xmr_address_viewkey().first;
+            .get_evo_address_viewkey().first;
     viewkey = get_search_thread(address_str)
-            .get_xmr_address_viewkey().second;
+            .get_evo_address_viewkey().second;
 
     return true;
 }
@@ -1003,7 +1003,7 @@ CurrentBlockchainStatus::find_key_images_in_mempool(
             transaction const& m_tx = mtx.second;
 
             vector<txin_to_key> input_key_imgs
-                    = xmreg::get_key_images(m_tx);
+                    = evoeg::get_key_images(m_tx);
 
             for (auto const& mki: input_key_imgs)
             {
@@ -1103,7 +1103,7 @@ CurrentBlockchainStatus::set_new_searched_blk_no(
 bool
 CurrentBlockchainStatus::update_acc(
         const string& address, 
-        XmrAccount const& _acc)
+        EvoAccount const& _acc)
 {
     std::lock_guard<std::mutex> lck (searching_threads_map_mtx);
 
@@ -1284,8 +1284,8 @@ CurrentBlockchainStatus::construct_output_rct_field(
             //// not the ones we actually spend.
             //// ringct coinbase txs are special. they have identity mask.
             //// as suggested by this code:
-            //// https://github.com/monero-project/monero/blob/eacf2124b6822d088199179b18d4587404408e0f/src/wallet/wallet2.cpp#L893
-            //// https://github.com/monero-project/monero/blob/master/src/blockchain_db/blockchain_db.cpp#L100
+            //// https://github.com/coinevo-project/coinevo/blob/eacf2124b6822d088199179b18d4587404408e0f/src/wallet/wallet2.cpp#L893
+            //// https://github.com/coinevo-project/coinevo/blob/master/src/blockchain_db/blockchain_db.cpp#L100
             //// rtc_mask   = pod_to_hex(rct::identity());
         //}
 

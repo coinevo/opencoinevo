@@ -23,11 +23,11 @@
 #include <atomic>
 
 
-namespace xmreg {
+namespace evoeg {
 
 using namespace std;
 
-class XmrAccount;
+class EvoAccount;
 class MySqlAccounts;
 class TxSearch;
 
@@ -78,7 +78,7 @@ public:
     update_current_blockchain_height();
 
     virtual bool
-    init_monero_blockchain();
+    init_coinevo_blockchain();
 
     // inject TxUnlockChecker object
     // its simplifies mocking its behavior in our
@@ -205,7 +205,7 @@ public:
     // definitions of these function are at the end of this file
     // due to forward declaraions of TxSearch
     virtual bool
-    start_tx_search_thread(XmrAccount acc,
+    start_tx_search_thread(EvoAccount acc,
                            std::unique_ptr<TxSearch> tx_search);
 
     virtual bool
@@ -218,7 +218,7 @@ public:
     search_thread_exist(string const& address, string const& viewkey);
 
     virtual bool
-    get_xmr_address_viewkey(const string& address_str,
+    get_evo_address_viewkey(const string& address_str,
                             address_parse_info& address,
                             secret_key& viewkey);
     virtual bool
@@ -251,7 +251,7 @@ public:
     
     virtual bool
     update_acc(const string& address, 
-               XmrAccount const& _acc);
+               EvoAccount const& _acc);
 
     virtual bool
     get_searched_blk_no(const string& address,
@@ -323,7 +323,7 @@ public:
 
 protected:
 
-    // parameters used to connect/read monero blockchain
+    // parameters used to connect/read coinevo blockchain
     BlockchainSetup bc_setup;
 
     // since this class monitors current status
@@ -335,7 +335,7 @@ protected:
     std::unique_ptr<MicroCore> mcore;
 
     // this class is also the only class which can
-    // use talk to monero deamon using RPC.
+    // use talk to coinevo deamon using RPC.
     std::unique_ptr<RPCCalls> rpc;
     
     // any operation required to use blockchain

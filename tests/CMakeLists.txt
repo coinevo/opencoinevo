@@ -8,7 +8,7 @@ macro(add_om_test _TEST_NAME)
         PRIVATE
           gtest gtest_main
           gmock gmock_main
-          myxmr)
+          myevo)
 
     add_test(NAME ${_TEST_NAME}_tests COMMAND ${_TEST_NAME}_tests)
 
@@ -33,9 +33,9 @@ add_om_test(txsearch)
 
 #set(COVERAGE_LCOV_EXCLUDES
     #'*/ext/*' '*boost/*' '*c++/*'
-     #'*/monero/*' '*googletest/*' '*googlemock/*'
+     #'*/coinevo/*' '*googletest/*' '*googlemock/*'
      #'*restbed/*' '*/mysql++/*' '*tests/*'
-     #'*src/xmregcore/*')
+     #'*src/evoegcore/*')
 
  #SETUP_TARGET_FOR_COVERAGE_LCOV(
        #NAME coverage

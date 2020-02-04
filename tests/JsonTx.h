@@ -3,7 +3,7 @@
 
 #include "../src/utils.h"
 
-namespace xmreg
+namespace evoeg
 {
 
 /**
@@ -67,7 +67,7 @@ public:
     explicit JsonTx(string _path);
 
     // generate output which normaly is produced by
-    // monero's get_output_tx_and_index and blockchain,
+    // coinevo's get_output_tx_and_index and blockchain,
     // but here we use data from the tx json data file
     // need this for mocking blockchain calls in unit tests
     void

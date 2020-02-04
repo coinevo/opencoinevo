@@ -2,8 +2,8 @@
 // Created by mwo on 8/12/16.
 //
 
-#ifndef RESTBED_XMR_YOURMONEROREQUESTS_H
-#define RESTBED_XMR_YOURMONEROREQUESTS_H
+#ifndef RESTBED_EVO_YOURCOINEVOREQUESTS_H
+#define RESTBED_EVO_YOURCOINEVOREQUESTS_H
 
 #include <iostream>
 #include <functional>
@@ -14,8 +14,8 @@
 #include "../ext/restbed/source/restbed"
 
 #ifndef MAKE_RESOURCE
-#define MAKE_RESOURCE(name) auto name = open_monero.make_resource( \
-                           &xmreg::OpenMoneroRequests::name, "/" + string(#name));
+#define MAKE_RESOURCE(name) auto name = open_coinevo.make_resource( \
+                           &evoeg::OpenCoinevoRequests::name, "/" + string(#name));
 #endif
 
 
@@ -27,14 +27,14 @@
 // whether they can talk to a given backend without having to know in
 // advance which version they will stop working with
 // Don't go over 32767 for any of these
-#define OPENMONERO_RPC_VERSION_MAJOR 1
-#define OPENMONERO_RPC_VERSION_MINOR 6
-#define MAKE_OPENMONERO_RPC_VERSION(major,minor) (((major)<<16)|(minor))
-#define OPENMONERO_RPC_VERSION \
-    MAKE_OPENMONERO_RPC_VERSION(OPENMONERO_RPC_VERSION_MAJOR, OPENMONERO_RPC_VERSION_MINOR)
+#define OPENCOINEVO_RPC_VERSION_MAJOR 1
+#define OPENCOINEVO_RPC_VERSION_MINOR 6
+#define MAKE_OPENCOINEVO_RPC_VERSION(major,minor) (((major)<<16)|(minor))
+#define OPENCOINEVO_RPC_VERSION \
+    MAKE_OPENCOINEVO_RPC_VERSION(OPENCOINEVO_RPC_VERSION_MAJOR, OPENCOINEVO_RPC_VERSION_MINOR)
 
 
-namespace xmreg
+namespace evoeg
 {
 
 using namespace std;
@@ -54,16 +54,16 @@ struct handel_
 };
 
 
-class OpenMoneroRequests
+class OpenCoinevoRequests
 {
 
     // this manages all mysql queries
-   shared_ptr<MySqlAccounts> xmr_accounts;
+   shared_ptr<MySqlAccounts> evo_accounts;
    shared_ptr<CurrentBlockchainStatus> current_bc_status;
 
 public:
 
-    OpenMoneroRequests(shared_ptr<MySqlAccounts> _acc,
+    OpenCoinevoRequests(shared_ptr<MySqlAccounts> _acc,
                        shared_ptr<CurrentBlockchainStatus> _current_bc_status);
 
     /**
@@ -113,7 +113,7 @@ public:
     get_version(const shared_ptr< Session > session, const Bytes & body);
 
     shared_ptr<Resource>
-    make_resource(function< void (OpenMoneroRequests&, const shared_ptr< Session >, const Bytes& ) > handle_func,
+    make_resource(function< void (OpenCoinevoRequests&, const shared_ptr< Session >, const Bytes& ) > handle_func,
                   const string& path);
 
     static void
@@ -140,9 +140,9 @@ private:
 
     bool
     login_and_start_search_thread(
-            const string& xmr_address,
+            const string& evo_address,
             const string& viewkey,
-            XmrAccount& acc,
+            EvoAccount& acc,
             json& j_response);
 
 
@@ -152,21 +152,21 @@ private:
                   json& j_request,
                   json& j_response) const;
 
-    boost::optional<XmrAccount>
-    create_account(string const& xmr_address,
+    boost::optional<EvoAccount>
+    create_account(string const& evo_address,
                    string const& view_key,
                    bool generated_locally = true) const;
 
     bool 
-    make_search_thread(XmrAccount& acc) const;
+    make_search_thread(EvoAccount& acc) const;
 
-    boost::optional<XmrAccount>
-    select_account(string const& xmr_address,
+    boost::optional<EvoAccount>
+    select_account(string const& evo_address,
                    string const& view_key,
                    bool create_if_notfound = true) const;
 
-    boost::optional<XmrPayment>
-    select_payment(XmrAccount const& xmr_account) const;
+    boost::optional<EvoPayment>
+    select_payment(EvoAccount const& evo_account) const;
 
      void
     session_close(
@@ -179,4 +179,4 @@ private:
 
 
 }
-#endif //RESTBED_XMR_YOURMONEROREQUESTS_H
+#endif //RESTBED_EVO_YOURCOINEVOREQUESTS_H

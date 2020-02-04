@@ -1,7 +1,7 @@
 #include "src/om_log.h"
 #include "src/CmdLineOptions.h"
 #include "src/MicroCore.h"
-#include "src/OpenMoneroRequests.h"
+#include "src/OpenCoinevoRequests.h"
 #include "src/ThreadRAII.h"
 #include "src/db/MysqlPing.h"
 
@@ -26,7 +26,7 @@ public:
     {
         std::lock_guard<std::mutex> lk(m);
         s_shouldExit = true;
-        OMINFO << "Request to finish the openmonero received";
+        OMINFO << "Request to finish the opencoinevo received";
         cv.notify_one();
     }
 
@@ -47,7 +47,7 @@ main(int ac, const char* av[])
 {
 
 // get command line options
-xmreg::CmdLineOptions opts {ac, av};
+evoeg::CmdLineOptions opts {ac, av};
 
 auto help_opt = opts.get_option<bool>("help");
 
@@ -57,15 +57,15 @@ if (*help_opt)
     return EXIT_SUCCESS;
 }
 
-auto monero_log_level  =
-        *(opts.get_option<size_t>("monero-log-level"));
+auto coinevo_log_level  =
+        *(opts.get_option<size_t>("coinevo-log-level"));
 
 auto verbose_level = 
         *(opts.get_option<size_t>("verbose"));
 
-if (monero_log_level < 1 || monero_log_level > 4)
+if (coinevo_log_level < 1 || coinevo_log_level > 4)
 {
-    cerr << "monero-log-level,m option must be between 1 and 4!\n";
+    cerr << "coinevo-log-level,m option must be between 1 and 4!\n";
     return EXIT_SUCCESS;
 }
 
@@ -75,13 +75,13 @@ if (verbose_level < 0 || verbose_level > 4)
     return EXIT_SUCCESS;
 }
 
-// setup monero logger
+// setup coinevo logger
 mlog_configure(mlog_get_default_log_path(""), true);
-mlog_set_log(std::to_string(monero_log_level).c_str());
+mlog_set_log(std::to_string(coinevo_log_level).c_str());
 
 auto log_file  = *(opts.get_option<string>("log-file"));
 
-// setup a logger for Open Monero
+// setup a logger for Open Coinevo
 
 el::Configurations defaultConf;
 
@@ -89,7 +89,7 @@ defaultConf.setToDefault();
 
 if (!log_file.empty())
 {
-    // setup openmonero log file
+    // setup opencoinevo log file
     defaultConf.setGlobally(el::ConfigurationType::Filename, log_file);
     defaultConf.setGlobally(el::ConfigurationType::ToFile, "true");
 }
@@ -104,9 +104,9 @@ defaultConf.setGlobally(el::ConfigurationType::Format,
 
 el::Loggers::setVerboseLevel(verbose_level);
 
-el::Loggers::reconfigureLogger(OPENMONERO_LOG_CATEGORY, defaultConf);
+el::Loggers::reconfigureLogger(OPENCOINEVO_LOG_CATEGORY, defaultConf);
 
-OMINFO << "OpenMonero is starting";
+OMINFO << "OpenCoinevo is starting";
 
 if (verbose_level > 0)
     OMINFO << "Using verbose log level to: " << verbose_level;
@@ -136,7 +136,7 @@ cryptonote::network_type nettype = testnet ?
 // create blockchainsetup instance and set its parameters
 // such as blockchain status monitoring thread parameters
 
-xmreg::BlockchainSetup bc_setup {nettype, do_not_relay, *config_file_opt};
+evoeg::BlockchainSetup bc_setup {nettype, do_not_relay, *config_file_opt};
 
 OMINFO << "Using blockchain path: " << bc_setup.blockchain_path;
 
@@ -147,11 +147,11 @@ nlohmann::json config_json = bc_setup.get_config();
 auto app_port   = boost::lexical_cast<uint16_t>(*port_opt);
 
 // set mysql/mariadb connection details
-xmreg::MySqlConnector::url      = config_json["database"]["url"];
-xmreg::MySqlConnector::port     = config_json["database"]["port"];
-xmreg::MySqlConnector::username = config_json["database"]["user"];
-xmreg::MySqlConnector::password = config_json["database"]["password"];
-xmreg::MySqlConnector::dbname   = config_json["database"]["dbname"];
+evoeg::MySqlConnector::url      = config_json["database"]["url"];
+evoeg::MySqlConnector::port     = config_json["database"]["port"];
+evoeg::MySqlConnector::username = config_json["database"]["user"];
+evoeg::MySqlConnector::password = config_json["database"]["password"];
+evoeg::MySqlConnector::dbname   = config_json["database"]["dbname"];
 
 // number of thread in blockchain access pool thread
 auto threads_no = std::max<uint32_t>(
@@ -177,17 +177,17 @@ OMINFO << "Thread pool size: " << threads_no << " threads";
 // and pass around other class which need to access blockchain data
 
 auto current_bc_status
-        = make_shared<xmreg::CurrentBlockchainStatus>(
+        = make_shared<evoeg::CurrentBlockchainStatus>(
             bc_setup,
-            std::make_unique<xmreg::MicroCore>(),
-            std::make_unique<xmreg::RPCCalls>(bc_setup.deamon_url),
+            std::make_unique<evoeg::MicroCore>(),
+            std::make_unique<evoeg::RPCCalls>(bc_setup.deamon_url),
             std::make_unique<TP::ThreadPool>(threads_no));
 
 // since CurrentBlockchainStatus class monitors current status
 // of the blockchain (e.g., current height) .This is the only class
 // that has direct access to blockchain and talks (using rpc calls)
-// with the monero deamon.
-if (!current_bc_status->init_monero_blockchain())
+// with the coinevo deamon.
+if (!current_bc_status->init_coinevo_blockchain())
 {
     OMERROR << "Error accessing blockchain.";
     return EXIT_FAILURE;
@@ -208,12 +208,12 @@ std::thread blockchain_monitoring_thread(
 OMINFO << "Blockchain monitoring thread started";
 
 // try connecting to the mysql
-shared_ptr<xmreg::MySqlAccounts> mysql_accounts;
+shared_ptr<evoeg::MySqlAccounts> mysql_accounts;
 
 try
 {
     // MySqlAccounts will try connecting to the mysql database
-    mysql_accounts = make_shared<xmreg::MySqlAccounts>(current_bc_status);
+    mysql_accounts = make_shared<evoeg::MySqlAccounts>(current_bc_status);
 
     OMINFO << "Connected to the MySQL";
 }
@@ -241,7 +241,7 @@ catch(std::exception const& e)
 // from: https://tangentsoft.net/mysql++/doc/html/userman/tutorial.html#connopts
 //
 
-xmreg::MysqlPing mysql_ping {
+evoeg::MysqlPing mysql_ping {
         mysql_accounts->get_connection(),
         bc_setup.mysql_ping_every};
 
@@ -255,9 +255,9 @@ std::thread mysql_ping_thread(
 OMINFO << "MySQL ping thread started";
 
 // create REST JSON API services
-xmreg::OpenMoneroRequests open_monero(mysql_accounts, current_bc_status);
+evoeg::OpenCoinevoRequests open_coinevo(mysql_accounts, current_bc_status);
 
-// create Open Monero APIs
+// create Open Coinevo APIs
 MAKE_RESOURCE(login);
 MAKE_RESOURCE(ping);
 MAKE_RESOURCE(get_address_txs);
@@ -273,7 +273,7 @@ MAKE_RESOURCE(get_version);
 // restbed service
 Service service;
 
-// Publish the Open Monero API created so that front end can use it
+// Publish the Open Coinevo API created so that front end can use it
 service.publish(login);
 service.publish(ping);
 service.publish(get_address_txs);

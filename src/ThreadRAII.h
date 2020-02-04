@@ -2,13 +2,13 @@
 // Created by mwo on 11/07/18.
 //
 
-#ifndef OPENMONERO_THREADRAII_H
-#define OPENMONERO_THREADRAII_H
+#ifndef OPENCOINEVO_THREADRAII_H
+#define OPENCOINEVO_THREADRAII_H
 
 #include <thread>
 #include <iostream>
 
-namespace xmreg
+namespace evoeg
 {
 
 // based on Mayer's ThreadRAII class (item 37)
@@ -50,4 +50,4 @@ protected:
 
 }
 
-#endif //OPENMONERO_THREADRAII_H
+#endif //OPENCOINEVO_THREADRAII_H

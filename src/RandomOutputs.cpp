@@ -1,6 +1,6 @@
 #include "RandomOutputs.h"
 #include "CurrentBlockchainStatus.h"
-namespace xmreg
+namespace evoeg
 {
 
 RandomOutputs::RandomOutputs(

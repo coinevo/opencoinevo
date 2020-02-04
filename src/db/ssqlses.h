@@ -2,15 +2,15 @@
 // Created by mwo on 14/12/16.
 //
 
-#ifndef RESTBED_XMR_SSQLSES_H
-#define RESTBED_XMR_SSQLSES_H
+#ifndef RESTBED_EVO_SSQLSES_H
+#define RESTBED_EVO_SSQLSES_H
 
 #include "ext/json.hpp"
 
 #include <mysql++/mysql++.h>
 #include <mysql++/ssqls.h>
 
-namespace xmreg
+namespace evoeg
 {
 
 using namespace std;
@@ -42,7 +42,7 @@ sql_create_9(Accounts, 1, 7,
              sql_timestamp      , modified);
 
 
-struct XmrAccount : public Accounts, Table
+struct EvoAccount : public Accounts, Table
 {
     static constexpr const char* SELECT_STMT = R"(
         SELECT * FROM `Accounts` WHERE `id` = (%0q)
@@ -100,7 +100,7 @@ sql_create_17(Transactions, 1, 17,
               sql_timestamp           , timestamp);
 
 
-struct XmrTransaction : public Transactions, Table
+struct EvoTransaction : public Transactions, Table
 {
 
     static constexpr const char* SELECT_STMT = R"(
@@ -149,7 +149,7 @@ struct XmrTransaction : public Transactions, Table
                              WHERE `id` = %0q;
     )";
 
-    static constexpr const char* SUM_XMR_RECIEVED = R"(
+    static constexpr const char* SUM_EVO_RECIEVED = R"(
         SELECT SUM(`total_received`) AS total_received
                FROM `Transactions`
                WHERE `account_id` = %0q
@@ -186,7 +186,7 @@ sql_create_13(Outputs, 1, 13,
               sql_bigint_unsigned, mixin,
               sql_timestamp      , timestamp);
 
-struct XmrOutput : public Outputs, Table
+struct EvoOutput : public Outputs, Table
 {
 
     static constexpr const char* SELECT_STMT = R"(
@@ -246,7 +246,7 @@ sql_create_7(Inputs, 1, 7,
              sql_timestamp           , timestamp);
 
 
-struct XmrInput : public Inputs, Table
+struct EvoInput : public Inputs, Table
 {
 
     static constexpr const char* SELECT_STMT = R"(
@@ -292,7 +292,7 @@ sql_create_9(Payments, 1, 7,
              sql_timestamp           , modified);
 
 
-struct XmrPayment : public Payments, Table
+struct EvoPayment : public Payments, Table
 {
 
     static constexpr const char* SELECT_STMT = R"(
@@ -328,4 +328,4 @@ struct XmrPayment : public Payments, Table
 }
 
 
-#endif //RESTBED_XMR_SSQLSES_H
+#endif //RESTBED_EVO_SSQLSES_H

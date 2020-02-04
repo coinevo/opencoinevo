@@ -2,18 +2,18 @@
 // Created by mwo on 5/11/15.
 //
 
-#ifndef XMREG01_TOOLS_H
-#define XMREG01_TOOLS_H
+#ifndef EVOEG01_TOOLS_H
+#define EVOEG01_TOOLS_H
 
 #define PATH_SEPARARTOR '/'
 
-#define XMR_AMOUNT(value) \
+#define EVO_AMOUNT(value) \
     static_cast<double>(value) / 1e12
 
 #define REMOVE_HASH_BRAKETS(a_hash) \
     a_hash.substr(1, a_hash.size()-2)
 
-#include "src/monero_headers.h"
+#include "src/coinevo_headers.h"
 
 #include "ext/json.hpp"
 
@@ -33,7 +33,7 @@
  * Names are rather self-explanatory, so I think
  * there is no reason for any detailed explanations here
  */
-namespace xmreg
+namespace evoeg
 {
 
 using namespace cryptonote;
@@ -161,7 +161,7 @@ encrypt_payment_id(crypto::hash8 &payment_id,
 
 
 inline double
-get_xmr(uint64_t core_amount)
+get_evo(uint64_t core_amount)
 {
     return  static_cast<double>(core_amount) / 1e12;
 }
@@ -204,7 +204,7 @@ parse_crow_post_data(const string& req_body);
 
 
 //string
-//xmr_amount_to_str(const uint64_t& xmr_amount, string format="{:0.12f}");
+//evo_amount_to_str(const uint64_t& evo_amount, string format="{:0.12f}");
 
 bool
 is_output_ours(const size_t& output_index,
@@ -290,4 +290,4 @@ populate_known_outputs_from_csv(
         bool skip_first_line = true);
 }
 
-#endif //XMREG01_TOOLS_H
+#endif //EVOEG01_TOOLS_H

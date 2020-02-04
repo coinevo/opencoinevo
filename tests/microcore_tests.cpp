@@ -39,21 +39,21 @@ class BlockchainSetupTest : public DifferentNetworks
 
 TEST_P(BlockchainSetupTest, DefaultConstruction)
 {
-    xmreg::BlockchainSetup bc_setup;
+    evoeg::BlockchainSetup bc_setup;
     EXPECT_TRUE(true);
 }
 
 TEST_P(BlockchainSetupTest, ReadInConfigFile)
 {
     network_type net_type = GetParam();
-    string net_name = xmreg::BlockchainSetup::get_network_name(net_type);
+    string net_name = evoeg::BlockchainSetup::get_network_name(net_type);
 
     bool do_not_relay {false};
     string confing_path {"../config/config.json"};
 
-    xmreg::BlockchainSetup bc_setup {net_type, do_not_relay, confing_path};
+    evoeg::BlockchainSetup bc_setup {net_type, do_not_relay, confing_path};
 
-    json config_json = xmreg::BlockchainSetup::read_config(confing_path);
+    json config_json = evoeg::BlockchainSetup::read_config(confing_path);
 
     EXPECT_EQ(bc_setup.import_payment_address_str,
               config_json["wallet_import"][net_name]["address"]);
@@ -62,7 +62,7 @@ TEST_P(BlockchainSetupTest, ReadInConfigFile)
     // equal to what we read manually
     EXPECT_EQ(bc_setup.get_config(), config_json);
 
-    xmreg::BlockchainSetup bc_setup2 {net_type, do_not_relay, config_json};
+    evoeg::BlockchainSetup bc_setup2 {net_type, do_not_relay, config_json};
 
     EXPECT_EQ(bc_setup2.import_payment_address_str,
               config_json["wallet_import"][net_name]["address"]);
@@ -74,7 +74,7 @@ TEST_P(BlockchainSetupTest, ReadInConfigFileFailure)
 {
     network_type net_type = GetParam();
 
-    string net_name = xmreg::BlockchainSetup::get_network_name(net_type);
+    string net_name = evoeg::BlockchainSetup::get_network_name(net_type);
 
     bool do_not_relay {false};
 
@@ -83,7 +83,7 @@ TEST_P(BlockchainSetupTest, ReadInConfigFileFailure)
     try
     {
         // expect throw if confing file does not exist
-        xmreg::BlockchainSetup bc_setup {net_type, do_not_relay, confing_path};
+        evoeg::BlockchainSetup bc_setup {net_type, do_not_relay, confing_path};
     }
     catch (std::exception const& e)
     {
@@ -103,7 +103,7 @@ TEST_P(BlockchainSetupTest, ReadInConfigFileFailure)
     {
         // expect throw if confing file is illformed and cant be parsed
         // into json
-        xmreg::BlockchainSetup bc_setup {net_type, do_not_relay, confing_path};
+        evoeg::BlockchainSetup bc_setup {net_type, do_not_relay, confing_path};
     }
     catch (std::exception const& e)
     {
@@ -115,13 +115,13 @@ TEST_P(BlockchainSetupTest, ParsingConfigFileFailure)
 {
     network_type net_type = GetParam();
 
-    string net_name = xmreg::BlockchainSetup::get_network_name(net_type);
+    string net_name = evoeg::BlockchainSetup::get_network_name(net_type);
 
     bool do_not_relay {false};
 
     string config_path {"../config/config.json"};
 
-    json config_json = xmreg::BlockchainSetup::read_config(config_path);
+    json config_json = evoeg::BlockchainSetup::read_config(config_path);
 
     json wrong_data = config_json;
 
@@ -131,7 +131,7 @@ TEST_P(BlockchainSetupTest, ParsingConfigFileFailure)
     try
     {
         // expect throw if cant parase address or viewkey
-        xmreg::BlockchainSetup bc_setup {net_type, do_not_relay, wrong_data};
+        evoeg::BlockchainSetup bc_setup {net_type, do_not_relay, wrong_data};
     }
     catch (std::exception const& e)
     {
@@ -145,7 +145,7 @@ TEST_P(BlockchainSetupTest, ParsingConfigFileFailure)
     try
     {
         // expect throw if cant parase address or viewkey
-        xmreg::BlockchainSetup bc_setup {net_type, do_not_relay, wrong_data};
+        evoeg::BlockchainSetup bc_setup {net_type, do_not_relay, wrong_data};
     }
     catch (std::exception const& e)
     {
@@ -159,7 +159,7 @@ TEST_P(BlockchainSetupTest, ParsingConfigFileFailure)
     try
     {
         // expect throw if cant parase address or viewkey
-        xmreg::BlockchainSetup bc_setup {net_type, do_not_relay, wrong_data};
+        evoeg::BlockchainSetup bc_setup {net_type, do_not_relay, wrong_data};
     }
     catch (std::exception const& e)
     {
@@ -174,7 +174,7 @@ TEST(BlockchainSetupTest, WrongNetworkType)
     try
     {
         // expect throw if cant parase address or viewkey
-        xmreg::BlockchainSetup::get_network_name(net_type);
+        evoeg::BlockchainSetup::get_network_name(net_type);
     }
     catch (std::exception const& e)
     {
@@ -185,12 +185,12 @@ TEST(BlockchainSetupTest, WrongNetworkType)
 
     string config_path {"../config/config.json"};
 
-    json config_json = xmreg::BlockchainSetup::read_config(config_path);
+    json config_json = evoeg::BlockchainSetup::read_config(config_path);
 
     try
     {
         // expect throw if cant parase address or viewkey
-        xmreg::BlockchainSetup bc_setup {net_type, do_not_relay, config_json};
+        evoeg::BlockchainSetup bc_setup {net_type, do_not_relay, config_json};
     }
     catch (std::exception const& e)
     {
@@ -203,13 +203,13 @@ TEST_P(BlockchainSetupTest, WrongBlockchainPath)
 {
     network_type net_type = GetParam();
 
-    string net_name = xmreg::BlockchainSetup::get_network_name(net_type);
+    string net_name = evoeg::BlockchainSetup::get_network_name(net_type);
 
     bool do_not_relay {false};
 
     string config_path {"../config/config.json"};
 
-    json config_json = xmreg::BlockchainSetup::read_config(config_path);
+    json config_json = evoeg::BlockchainSetup::read_config(config_path);
 
     // make mistake in address
     config_json["blockchain-path"][net_name]
@@ -218,7 +218,7 @@ TEST_P(BlockchainSetupTest, WrongBlockchainPath)
     try
     {
         // expect throw if cant parase address or viewkey
-        xmreg::BlockchainSetup bc_setup {net_type, do_not_relay, config_json};
+        evoeg::BlockchainSetup bc_setup {net_type, do_not_relay, config_json};
     }
     catch (std::exception const& e)
     {
@@ -227,7 +227,7 @@ TEST_P(BlockchainSetupTest, WrongBlockchainPath)
 }
 
 INSTANTIATE_TEST_CASE_P(
-        DifferentMoneroNetworks, BlockchainSetupTest,
+        DifferentCoinevoNetworks, BlockchainSetupTest,
         ::testing::Values(
                 network_type::MAINNET,
                 network_type::TESTNET,
@@ -242,7 +242,7 @@ public:
     SetUpTestCase()
     {
         string config_path {"../config/config.json"};
-        config_json = xmreg::BlockchainSetup::read_config(config_path);
+        config_json = evoeg::BlockchainSetup::read_config(config_path);
     }
 
 protected:
@@ -251,12 +251,12 @@ protected:
     virtual void
     SetUp()
     {
-        bc_setup = xmreg::BlockchainSetup{net_type, do_not_relay, config_json};
+        bc_setup = evoeg::BlockchainSetup{net_type, do_not_relay, config_json};
     }  
 
      network_type net_type {network_type::STAGENET};
      bool do_not_relay {false};
-     xmreg::BlockchainSetup bc_setup;
+     evoeg::BlockchainSetup bc_setup;
 
      static json config_json;
 };
@@ -265,13 +265,13 @@ json MICROCORE_TEST::config_json;
 
 TEST_F(MICROCORE_TEST, DefaultConstruction)
 {
-    xmreg::MicroCore mcore;
+    evoeg::MicroCore mcore;
     EXPECT_TRUE(true);
 }
 
 TEST_F(MICROCORE_TEST, InitializationSuccess)
 {
-    xmreg::MicroCore mcore;
+    evoeg::MicroCore mcore;
 
     EXPECT_TRUE(mcore.init(bc_setup.blockchain_path, net_type));
 

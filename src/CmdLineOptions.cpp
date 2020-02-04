@@ -5,7 +5,7 @@
 #include "CmdLineOptions.h"
 
 
-namespace xmreg
+namespace evoeg
 {
     /**
      * Take the acc and *avv[] from the main() and check and parse
@@ -16,7 +16,7 @@ namespace xmreg
         positional_options_description p;
 
         options_description desc(
-                "openmonero, Open Monero backend service");
+                "opencoinevo, Open Coinevo backend service");
 
         desc.add_options()
                 ("help,h", value<bool>()->default_value(false)
@@ -33,18 +33,18 @@ namespace xmreg
                  "does not relay txs to other nodes. useful "
                  "when testing construction and submiting txs")
                 ("port,p", value<string>()->default_value("1984"),
-                 "default port for restbed service of Open Monero")
+                 "default port for restbed service of Open Coinevo")
                 ("config-file,c", value<string>()
                  ->default_value("./config/config.json"),
                  "Config file path.")
-                ("monero-log-level,m", value<size_t>()
+                ("coinevo-log-level,m", value<size_t>()
                  ->default_value(1),
-                 "Monero log level 1-4, default is 1.")
+                 "Coinevo log level 1-4, default is 1.")
                 ("verbose,v", value<size_t>()
                  ->default_value(0),
-                 "OpenMonero log verbose level 0-4, default is 0.")
+                 "OpenCoinevo log verbose level 0-4, default is 0.")
                 ("log-file,l", value<string>()
-                 ->default_value("./openmonero.log"),
+                 ->default_value("./opencoinevo.log"),
                  "Name and path to log file. -l \"\" to disable log file.");
 
 

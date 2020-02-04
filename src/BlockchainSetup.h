@@ -2,15 +2,15 @@
 // Created by mwo on 10/07/18.
 //
 
-#ifndef OPENMONERO_BLOCKCHAINSETUP_H
-#define OPENMONERO_BLOCKCHAINSETUP_H
+#ifndef OPENCOINEVO_BLOCKCHAINSETUP_H
+#define OPENCOINEVO_BLOCKCHAINSETUP_H
 
-#include "src/monero_headers.h"
+#include "src/coinevo_headers.h"
 #include "utils.h"
 
 #include <string>
 
-namespace xmreg
+namespace evoeg
 {
 
 using namespace crypto;
@@ -88,4 +88,4 @@ private:
 }
 
 
-#endif //OPENMONERO_BLOCKCHAINSETUP_H
+#endif //OPENCOINEVO_BLOCKCHAINSETUP_H

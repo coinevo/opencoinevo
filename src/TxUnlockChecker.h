@@ -1,9 +1,9 @@
 #ifndef TXUNLOCKCHECKER_H
 #define TXUNLOCKCHECKER_H
 
-#include "src/monero_headers.h"
+#include "src/coinevo_headers.h"
 
-namespace xmreg
+namespace evoeg
 {
 
 using namespace cryptonote;
@@ -15,7 +15,7 @@ using namespace std;
 // bool wallet2::is_tx_spendtime_unlocked(uint64_t unlock_time, uint64_t block_height) const
 // and
 // bool wallet2::is_transfer_unlocked(uint64_t unlock_time, uint64_t block_height) const
-// from monero.
+// from coinevo.
 // we make it separate class as its easier to mock it
 // later on in our tests
 class TxUnlockChecker

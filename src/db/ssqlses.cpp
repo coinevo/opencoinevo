@@ -5,7 +5,7 @@
 #include "ssqlses.h"
 
 
-namespace xmreg
+namespace evoeg
 {
 
 
@@ -16,7 +16,7 @@ ostream& operator<< (std::ostream& os, const Table& data)
 };
 
 json
-XmrAccount::to_json() const
+EvoAccount::to_json() const
 {
     json j {{"id"                     , id.data},
             {"address"                , address},
@@ -30,7 +30,7 @@ XmrAccount::to_json() const
 }
 
 json
-XmrTransaction::to_json() const
+EvoTransaction::to_json() const
 {
     json j {{"id"                  , id.data},
             {"hash"                , hash},
@@ -54,20 +54,20 @@ XmrTransaction::to_json() const
 }
 
 DateTime
-XmrTransaction::timestamp_to_DateTime(time_t timestamp)
+EvoTransaction::timestamp_to_DateTime(time_t timestamp)
 {
     return DateTime(timestamp);
 }
 
-ostream& operator<< (std::ostream& os, const XmrTransaction& acc)
+ostream& operator<< (std::ostream& os, const EvoTransaction& acc)
 {
-    os << "XmrTransactions: " << acc.to_json().dump() << '\n';
+    os << "EvoTransactions: " << acc.to_json().dump() << '\n';
     return os;
 };
 
 
 json
-XmrOutput::to_json() const
+EvoOutput::to_json() const
 {
     json j {{"id"                  , id.data},
             {"account_id"          , account_id},
@@ -85,14 +85,14 @@ XmrOutput::to_json() const
 }
 
 
-ostream& operator<< (std::ostream& os, const XmrOutput& out) {
-    os << "XmrOutputs: " << out.to_json().dump() << '\n';
+ostream& operator<< (std::ostream& os, const EvoOutput& out) {
+    os << "EvoOutputs: " << out.to_json().dump() << '\n';
     return os;
 };
 
 
 json
-XmrInput::to_json() const
+EvoInput::to_json() const
 {
     json j {{"id"                  , id.data},
             {"account_id"          , account_id},
@@ -108,14 +108,14 @@ XmrInput::to_json() const
 
 
 
-ostream& operator<< (std::ostream& os, const XmrInput& out)
+ostream& operator<< (std::ostream& os, const EvoInput& out)
 {
-    os << "XmrInput: " << out.to_json().dump() << '\n';
+    os << "EvoInput: " << out.to_json().dump() << '\n';
     return os;
 };
 
 json
-XmrPayment::to_json() const
+EvoPayment::to_json() const
 {
     json j {{"id"               , id.data},
             {"account_id"       , account_id},
@@ -130,8 +130,8 @@ XmrPayment::to_json() const
 }
 
 
-ostream& operator<< (std::ostream& os, const XmrPayment& out) {
-    os << "XmrPayment: " << out.to_json().dump() << '\n';
+ostream& operator<< (std::ostream& os, const EvoPayment& out) {
+    os << "EvoPayment: " << out.to_json().dump() << '\n';
     return os;
 };
 

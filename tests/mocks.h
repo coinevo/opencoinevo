@@ -36,7 +36,7 @@ using ::testing::Invoke;
 
 
 
-class MockMicroCore : public xmreg::MicroCore
+class MockMicroCore : public evoeg::MicroCore
 {
 public:
     MOCK_METHOD2(init, bool(const string& _blockchain_path,
@@ -113,11 +113,11 @@ public:
 
 };
 
-class MockRPCCalls : public xmreg::RPCCalls
+class MockRPCCalls : public evoeg::RPCCalls
 {
 public:
     MockRPCCalls(string _deamon_url)
-        : xmreg::RPCCalls(_deamon_url)
+        : evoeg::RPCCalls(_deamon_url)
     {}
 
     MOCK_METHOD3(commit_tx, bool(const string& tx_blob,
@@ -128,7 +128,7 @@ public:
                  bool(uint64_t& current_height));
 };
 
-class MockTxSearch : public xmreg::TxSearch
+class MockTxSearch : public evoeg::TxSearch
 {
 public:
     MOCK_METHOD0(operator_fcall, void());
@@ -141,17 +141,17 @@ public:
     MOCK_CONST_METHOD0(get_searched_blk_no, uint64_t());
 
     MOCK_METHOD0(get_known_outputs_keys,
-                 xmreg::TxSearch::known_outputs_t());
+                 evoeg::TxSearch::known_outputs_t());
 
-    MOCK_CONST_METHOD0(get_xmr_address_viewkey,
-                 xmreg::TxSearch::addr_view_t());
+    MOCK_CONST_METHOD0(get_evo_address_viewkey,
+                 evoeg::TxSearch::addr_view_t());
 
     // google mock has some issues with nlohmann::json
     // as input or return parameters in functions it mocks.
     // it resutls in wornings, so to avoid it we are going
     // to proxy json as strings.
     MOCK_METHOD2(mock_find_txs_in_mempool,
-                 void(xmreg::TxSearch::pool_txs_t mempool_txs,
+                 void(evoeg::TxSearch::pool_txs_t mempool_txs,
                       vector<string>& transactions_json_str));
 
 
@@ -175,11 +175,11 @@ public:
 
 };
 
-class MockCurrentBlockchainStatus : public xmreg::CurrentBlockchainStatus
+class MockCurrentBlockchainStatus : public evoeg::CurrentBlockchainStatus
 {
 public:
     MockCurrentBlockchainStatus()
-        : xmreg::CurrentBlockchainStatus(xmreg::BlockchainSetup(),
+        : evoeg::CurrentBlockchainStatus(evoeg::BlockchainSetup(),
                                          nullptr, nullptr, nullptr)
     {}
 

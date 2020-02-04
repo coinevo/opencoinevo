@@ -3,15 +3,15 @@
 //
 
 
-#ifndef CROWXMR_RPCCALLS_H
-#define CROWXMR_RPCCALLS_H
+#ifndef CROWEVO_RPCCALLS_H
+#define CROWEVO_RPCCALLS_H
 
-#include "src/monero_headers.h"
+#include "src/coinevo_headers.h"
 
 #include <mutex>
 #include <chrono>
 
-namespace xmreg
+namespace evoeg
 {
 
 using namespace cryptonote;
@@ -41,7 +41,7 @@ public:
              chrono::seconds _timeout = 3min + 30s);
 
     virtual bool
-    connect_to_monero_deamon();
+    connect_to_coinevo_deamon();
 
     virtual bool
     commit_tx(const string& tx_blob,
@@ -68,4 +68,4 @@ protected:
 
 }
 
-#endif //CROWXMR_RPCCALLS_H
+#endif //CROWEVO_RPCCALLS_H

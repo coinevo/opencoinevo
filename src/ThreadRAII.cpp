@@ -4,7 +4,7 @@
 
 #include "ThreadRAII.h"
 
-namespace xmreg
+namespace evoeg
 {
 
 ThreadRAII::ThreadRAII(std::thread&& _t, DtorAction _action)

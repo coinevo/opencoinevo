@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015, MyMonero.com
+// Copyright (c) 2014-2015, MyCoinevo.com
 // 
 // All rights reserved.
 // 
@@ -266,7 +266,7 @@ thinwalletCtrls.controller('AccountCtrl', function($scope, $rootScope, $http, $q
                         }
                         else
                         {
-                            //remove tx if zero xmr recievied. probably spent only tx,
+                            //remove tx if zero evo recievied. probably spent only tx,
                             //but we dont have spendkey to verify this.
                             //console.log(new JSBigInt(transactions[i].total_received));
                             //console.log(new JSBigInt(transactions[i].total_received).compare(0));
