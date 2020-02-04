@@ -1,4 +1,4 @@
-# OpenMonero - a fully open sourced implementation of MyMonero backend
+# OpenEvo - a fully open sourced implementation of MyMonero backend
 
 In this example [restbed](https://github.com/Corvusoft/restbed/) is used to
 demonstrate how to provide Monero related JSON REST service. For this purpose,
