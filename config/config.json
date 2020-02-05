@@ -2,9 +2,9 @@
   "daemon-url" :
   {
     "_comment" : "RPC urls to coinevo deamon",
-    "mainnet"  : "http://127.0.0.1:18081",
-    "testnet"  : "http://127.0.0.1:28081",
-    "stagenet" : "http://127.0.0.1:38081"
+    "mainnet"  : "http://127.0.0.1:33331",
+    "testnet"  : "http://127.0.0.1:44441",
+    "stagenet" : "http://127.0.0.1:55551"
   },
   "blockchain-path" :
   {

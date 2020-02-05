@@ -2,7 +2,7 @@
   "daemon-url" :
   {
     "_comment" : "MISSING COMMA is INVALID JSON format -->"
-    "mainnet"  : "http://127.0.0.1:18081",
+    "mainnet"  : "http://127.0.0.1:33331",
     "testnet"  : "http://127.0.0.1:28081",
     "stagenet" : "http://127.0.0.1:38081"
   },
